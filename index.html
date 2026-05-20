@@ -1,0 +1,2548 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microeconomics Batting Cage — Batting Cage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+  :root {
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'Work Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --max-w: 860px;
+  }
+
+  [data-theme="dark"] {
+    --bg-0: #0f0f12;
+    --bg-1: #17171c;
+    --bg-2: #1a1a1f;
+    --bg-3: #222228;
+    --border: #2a2a32;
+    --border-hover: #3a3a44;
+    --text-1: #ececf0;
+    --text-2: #a0a0ae;
+    --text-3: #62626e;
+    --amber: #f5a623;
+    --amber-dim: #2e1f06;
+    --amber-glow: rgba(245, 166, 35, 0.12);
+    --green: #34d399;
+    --green-dim: #062e1e;
+    --red: #f87171;
+    --red-dim: #2e0a0a;
+    --blue: #60a5fa;
+    --overlay: rgba(0,0,0,0.6);
+    --shadow: 0 2px 12px rgba(0,0,0,0.4);
+    --card-active: #151518;
+  }
+
+  [data-theme="light"] {
+    --bg-0: #f6f5f1;
+    --bg-1: #ffffff;
+    --bg-2: #f0efeb;
+    --bg-3: #e8e6e0;
+    --border: #dbd8d0;
+    --border-hover: #c5c2ba;
+    --text-1: #1a1918;
+    --text-2: #6b6860;
+    --text-3: #9e9b92;
+    --amber: #c27a0e;
+    --amber-dim: #fdf4e6;
+    --amber-glow: rgba(194, 122, 14, 0.08);
+    --green: #059669;
+    --green-dim: #ecfdf5;
+    --red: #dc2626;
+    --red-dim: #fef2f2;
+    --blue: #2563eb;
+    --overlay: rgba(255,255,255,0.7);
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --card-active: #fffdf8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-0);
+    color: var(--text-1);
+    min-height: 100vh;
+    transition: background 0.4s var(--ease-out), color 0.3s;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* --- Background texture --- */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(var(--border) 0.5px, transparent 0.5px);
+    background-size: 24px 24px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* --- Screen management --- */
+  .screen { display: none; animation: fadeIn 0.35s var(--ease-out); }
+  .screen.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* --- Top bar (shared) --- */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+  .top-bar__brand {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: var(--text-3);
+  }
+  .top-bar__brand span { color: var(--amber); }
+  .top-bar__right { display: flex; align-items: center; gap: 12px; }
+
+  /* --- Theme toggle --- */
+  .theme-toggle {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    width: 44px; height: 24px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s var(--ease-out);
+  }
+  .theme-toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--text-2);
+    transition: transform 0.3s var(--ease-spring);
+  }
+  [data-theme="light"] .theme-toggle::after { transform: translateX(20px); }
+
+  /* ======================= SETUP SCREEN ======================= */
+  .setup-header {
+    text-align: center;
+    padding: 48px 0 40px;
+  }
+  .setup-header h1 {
+    font-family: var(--font-display);
+    font-size: 44px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  .setup-header h1 span { color: var(--amber); }
+  .setup-header p {
+    color: var(--text-2);
+    font-size: 15px;
+  }
+
+  .chapter-group {
+    margin-bottom: 28px;
+  }
+  .chapter-group__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.01em;
+    color: var(--text-2);
+    margin-bottom: 12px;
+    padding-left: 2px;
+  }
+
+  .section-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+  }
+
+  .section-card {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-left: 3px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.25s var(--ease-out);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    user-select: none;
+  }
+  .section-card:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-2);
+  }
+  .section-card.on-deck {
+    border-left-color: var(--amber);
+    background: var(--card-active);
+    box-shadow: inset 0 0 0 1px var(--amber-glow);
+  }
+
+  .section-card__num {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-3);
+    background: var(--bg-2);
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    transition: all 0.25s;
+  }
+  .section-card.on-deck .section-card__num {
+    color: var(--amber);
+    background: var(--amber-dim);
+  }
+
+  .section-card__info { flex: 1; min-width: 0; }
+  .section-card__title {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .section-card__count {
+    font-size: 12px;
+    color: var(--text-3);
+    margin-top: 2px;
+  }
+
+  .section-card__check {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.25s var(--ease-spring);
+    flex-shrink: 0;
+  }
+  .section-card.on-deck .section-card__check {
+    background: var(--amber);
+    border-color: var(--amber);
+  }
+  .section-card__check svg {
+    width: 12px; height: 12px;
+    stroke: var(--bg-0);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s var(--ease-spring);
+  }
+  .section-card.on-deck .section-card__check svg {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Start bar */
+  .start-bar {
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-0);
+    border-top: 1px solid var(--border);
+    padding: 16px 0 24px;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+  }
+  .start-bar::before {
+    content: '';
+    position: absolute;
+    top: -24px; left: 0; right: 0; height: 24px;
+    background: linear-gradient(transparent, var(--bg-0));
+    pointer-events: none;
+  }
+
+  .deck-count {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-3);
+  }
+  .deck-count span { color: var(--amber); font-weight: 600; }
+
+  .btn {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s var(--ease-out);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    outline: none;
+  }
+  .btn:focus-visible {
+    box-shadow: 0 0 0 2px var(--bg-0), 0 0 0 4px var(--amber);
+  }
+
+  .btn--primary {
+    background: var(--amber);
+    color: #0a0a0a;
+    padding: 12px 28px;
+    font-size: 15px;
+  }
+  .btn--primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .btn--primary:active { transform: translateY(0); }
+  .btn--primary:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+    filter: none;
+  }
+
+  .btn--ghost {
+    background: transparent;
+    color: var(--text-2);
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+  }
+  .btn--ghost:hover { background: var(--bg-2); color: var(--text-1); }
+
+  .btn--sm { padding: 8px 14px; font-size: 13px; }
+
+  .select-actions {
+    display: flex; gap: 8px; margin-bottom: 20px;
+  }
+
+  /* ======================= PRACTICE SCREEN ======================= */
+  .practice-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+
+  .practice-bar__left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .session-timer {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--text-3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .session-timer__dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: blink 2s infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .problem-counter {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-3);
+  }
+  .problem-counter span { color: var(--text-1); }
+
+  /* Problem card */
+  .problem-area {
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .problem-section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-3);
+    background: var(--bg-2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+  }
+
+  .problem-section-link {
+    display: none;
+    text-align: center;
+    margin-bottom: 24px;
+    animation: fadeIn 0.3s var(--ease-out);
+  }
+  .problem-section-link.visible { display: block; }
+  .problem-section-link a {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--blue);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    transition: all 0.2s var(--ease-out);
+  }
+  .problem-section-link a:hover {
+    background: var(--bg-3);
+    text-decoration: underline;
+  }
+  .problem-section-link a svg {
+    width: 12px; height: 12px;
+    flex-shrink: 0;
+  }
+
+  .verdict-hint {
+    font-size: 13px;
+    color: var(--text-3);
+    text-align: center;
+    margin-bottom: 12px;
+    line-height: 1.5;
+    animation: fadeIn 0.3s var(--ease-out);
+  }
+
+  .problem-card {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 40px 36px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .problem-card .katex-display { margin: 0; }
+  .problem-card .katex { font-size: 1.35em; }
+
+  /* Problem timer */
+  .problem-timer {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 32px;
+    color: var(--amber);
+    margin-bottom: 28px;
+    letter-spacing: 2px;
+    transition: color 0.4s, opacity 0.4s;
+  }
+  .problem-timer.paused {
+    color: var(--text-3);
+    animation: none;
+  }
+  /* Timer hidden mode: display still there but faint and unanimated; session timer dimmed */
+  body.timer-hidden .problem-timer { visibility: hidden; height: 32px; }
+  body.timer-hidden .session-timer { opacity: 0.3; }
+  body.timer-hidden .session-timer__dot { animation: none; }
+  .problem-timer .timer-pulse {
+    display: inline-block;
+    animation: timerPulse 1s ease-in-out infinite;
+  }
+  .problem-timer.paused .timer-pulse { animation: none; }
+  @keyframes timerPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.65; }
+  }
+
+  /* Action area */
+  .action-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .btn--reveal {
+    background: var(--amber);
+    color: #0a0a0a;
+    padding: 14px 40px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+  }
+
+  /* Answer reveal */
+  .answer-area {
+    display: none;
+    animation: slideUp 0.35s var(--ease-out);
+  }
+  .answer-area.visible { display: block; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .answer-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  .answer-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-3);
+    margin-bottom: 12px;
+  }
+
+  .answer-display {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .answer-display .katex { font-size: 1.2em; }
+
+  /* Solution walkthrough */
+  .solution-toggle {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--text-3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 auto 20px;
+    padding: 4px 8px;
+    transition: color 0.2s;
+  }
+  .solution-toggle:hover { color: var(--text-2); }
+  .solution-toggle svg {
+    width: 14px; height: 14px;
+    transition: transform 0.3s var(--ease-out);
+  }
+  .solution-toggle.expanded svg { transform: rotate(180deg); }
+
+  .solution-content {
+    display: none;
+    text-align: left;
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text-2);
+  }
+  .solution-content.visible { display: block; animation: fadeIn 0.3s var(--ease-out); }
+  .solution-content .katex { font-size: 1em; }
+
+  /* Verdict buttons */
+  .verdict-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .btn--correct {
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid var(--green);
+    padding: 10px 24px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+  }
+  .btn--correct:hover { filter: brightness(1.15); }
+
+  .btn--wrong {
+    background: var(--red-dim);
+    color: var(--red);
+    border: 1px solid var(--red);
+    padding: 10px 24px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+  }
+  .btn--wrong:hover { filter: brightness(1.15); }
+
+  .btn--skip {
+    background: transparent;
+    color: var(--text-3);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+  }
+  .btn--skip:hover { background: var(--bg-2); }
+
+  .btn--next {
+    background: var(--bg-3);
+    color: var(--text-1);
+    padding: 12px 32px;
+    font-size: 15px;
+    border-radius: var(--radius-md);
+  }
+  .btn--next:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+  .key-hint {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--text-3);
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+
+  /* ======================= RESULTS SCREEN ======================= */
+  .results-header {
+    text-align: center;
+    padding: 40px 0 32px;
+  }
+  .results-header h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px 24px;
+    text-align: center;
+    min-width: 120px;
+  }
+  .stat-card__value {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 24px;
+    color: var(--text-1);
+    margin-bottom: 4px;
+  }
+  .stat-card__value.amber { color: var(--amber); }
+  .stat-card__value.green { color: var(--green); }
+  .stat-card__label {
+    font-size: 12px;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Results table */
+  .results-table-wrap {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .results-table th {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-3);
+    text-align: left;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-2);
+  }
+  .results-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .results-table tr:last-child td { border-bottom: none; }
+  .results-table .katex { font-size: 0.9em; }
+
+  .result-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .result-badge.correct { background: var(--green-dim); color: var(--green); }
+  .result-badge.wrong { background: var(--red-dim); color: var(--red); }
+  .result-badge.skipped { background: var(--bg-2); color: var(--text-3); }
+
+  .review-link {
+    font-size: 13px;
+    color: var(--blue);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .review-link:hover { text-decoration: underline; }
+  .review-link svg { width: 12px; height: 12px; }
+
+  .results-actions {
+    text-align: center;
+    padding-bottom: 48px;
+  }
+
+  /* ======================= RESPONSIVE ======================= */
+  @media (max-width: 600px) {
+    .setup-header h1 { font-size: 28px; }
+    .section-grid { grid-template-columns: 1fr; }
+    .problem-card { padding: 28px 20px; }
+    .problem-timer { font-size: 26px; }
+    .stats-row { gap: 12px; }
+    .stat-card { min-width: 90px; padding: 12px 16px; }
+    .stat-card__value { font-size: 20px; }
+    .verdict-row { flex-wrap: wrap; }
+    .results-table { font-size: 13px; }
+    .results-table th, .results-table td { padding: 10px 12px; }
+    .start-bar { flex-direction: column; gap: 12px; }
+  }
+
+  .result-actions-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .result-walkthrough-toggle {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--text-3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 0;
+    transition: color 0.2s;
+  }
+  .result-walkthrough-toggle:hover { color: var(--text-1); }
+  .result-walkthrough-toggle svg {
+    width: 12px; height: 12px;
+    transition: transform 0.25s var(--ease-out);
+  }
+  .result-walkthrough-toggle.expanded svg { transform: rotate(180deg); }
+  .result-walkthrough-row td {
+    background: var(--bg-2);
+    padding: 0 16px 16px !important;
+  }
+  .result-walkthrough-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 12px 4px 4px;
+  }
+  @media (max-width: 720px) {
+    .result-walkthrough-body { grid-template-columns: 1fr; }
+  }
+  .result-walkthrough-label {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: var(--text-3);
+    margin-bottom: 6px;
+  }
+  .result-walkthrough-answer,
+  .result-walkthrough-solution {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text-2);
+  }
+  .result-walkthrough-answer .katex { font-size: 1em; }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- =================== SETUP SCREEN =================== -->
+  <div id="setup-screen" class="screen active">
+    <div class="top-bar">
+      <div class="top-bar__brand">The Batting <span>Cage</span></div>
+      <div class="top-bar__right">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"></button>
+      </div>
+    </div>
+
+    <div class="setup-header">
+      <h1>Microeconomics <span>Batting Cage</span></h1>
+      <p>Pick a topic, take a swing, then check yourself. Conceptual recall and multiple-choice problems drawn from each unit's required resources.</p>
+    </div>
+
+    <div class="select-actions">
+      <button class="btn btn--ghost btn--sm" onclick="selectAll()">Select all</button>
+      <button class="btn btn--ghost btn--sm" onclick="clearAll()">Clear</button>
+    </div>
+
+    <div id="section-list"></div>
+
+    <div class="start-bar">
+      <div class="deck-count" id="deck-count">
+        <span>0</span> problems on deck
+      </div>
+      <button class="btn btn--primary" id="start-btn" disabled onclick="startSession()">
+        Start Session
+      </button>
+    </div>
+  </div>
+
+  <!-- =================== PRACTICE SCREEN =================== -->
+  <div id="practice-screen" class="screen">
+    <div class="practice-bar">
+      <div class="practice-bar__left">
+        <div class="session-timer">
+          <div class="session-timer__dot"></div>
+          <span id="session-timer-display">0:00</span>
+        </div>
+        <div class="problem-counter">
+          <span id="problem-current">1</span> / <span id="problem-total">12</span>
+        </div>
+      </div>
+      <div class="practice-bar__right" style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn--ghost btn--sm" id="timer-toggle" onclick="toggleTimer()" aria-pressed="false" title="Hide the timer if it feels stressful. Time still tracks for your results.">Hide timer</button>
+        <button class="btn btn--ghost btn--sm" onclick="endSession()">End session</button>
+      </div>
+    </div>
+
+    <div class="problem-area">
+      <div class="problem-section-tag" id="problem-section-tag">
+        <span id="problem-section-num"></span>
+        <span id="problem-section-title"></span>
+      </div>
+
+      <div class="problem-section-link" id="problem-section-link"></div>
+
+      <div class="problem-prompt" id="problem-prompt" style="font-size:15px;color:var(--text-2);margin-bottom:16px;line-height:1.5"></div>
+
+      <div class="problem-card" id="problem-display"></div>
+
+      <div class="problem-timer" id="problem-timer">
+        <span class="timer-pulse" id="problem-timer-display">0:00</span>
+      </div>
+
+      <div class="action-area">
+        <div id="pre-reveal">
+          <button class="btn btn--reveal" onclick="revealAnswer()">
+            Show Answer <span class="key-hint">Space</span>
+          </button>
+        </div>
+
+        <div class="answer-area" id="post-reveal">
+          <div class="answer-divider"></div>
+          <div class="answer-label">Answer</div>
+          <div class="answer-display" id="answer-display"></div>
+
+          <button class="solution-toggle" id="solution-toggle" onclick="toggleSolution()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+            Show walkthrough
+          </button>
+          <div class="solution-content" id="solution-content"></div>
+
+          <div class="verdict-hint" id="verdict-hint">
+            Track your progress. An honest call here helps the session surface your weak spots.
+          </div>
+
+          <div class="verdict-row">
+            <button class="btn btn--correct" onclick="markResult('correct')">
+              Correct <span class="key-hint">1</span>
+            </button>
+            <button class="btn btn--wrong" onclick="markResult('wrong')">
+              Wrong <span class="key-hint">2</span>
+            </button>
+            <button class="btn btn--skip" onclick="markResult('skip')">
+              Skip <span class="key-hint">3</span>
+            </button>
+          </div>
+
+          <button class="btn btn--next" onclick="nextProblem()">
+            Next <span class="key-hint">Enter</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== RESULTS SCREEN =================== -->
+  <div id="results-screen" class="screen">
+    <div class="top-bar">
+      <div class="top-bar__brand">The Batting <span>Cage</span></div>
+      <div class="top-bar__right">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme"></button>
+      </div>
+    </div>
+
+    <div class="results-header">
+      <h2>Session Complete</h2>
+    </div>
+
+    <div class="stats-row" id="stats-row"></div>
+
+    <div class="results-table-wrap">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Section</th>
+            <th>Problem</th>
+            <th>Result</th>
+            <th>Time</th>
+            <th>Where to read or watch</th>
+          </tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+      </table>
+    </div>
+
+    <div class="results-actions">
+      <button class="btn btn--primary" onclick="backToSetup()">Practice Again</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ========================= PROBLEM DATA =========================
+// Inline SECTIONS block removed 2026-04-24. Data now loaded from problems.json
+// at runtime (see loadProblems() below). Use build_problems.py to regenerate.
+const SECTIONS = {};
+const BATTING_CAGE_DATA = {
+  "u1-scarcity": {
+    "id": "u1-scarcity",
+    "title": "Scarcity",
+    "badge": "U1",
+    "group": "U1",
+    "groupTitle": "Onboarding",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "According to the unit 1 marquee page, which sentence best describes what this course is about?\n\n(A) How individuals make choices under scarcity, and how those choices form market prices and quantities. | (B) How to pick stocks, build a personal budget, and read the financial statements of a public company. | (C) How inflation, unemployment, and central banking shape the size of a national economy over time. | (D) How to record debits and credits and prepare a company's balance sheet and income statement.",
+        "answer": "(A) How individuals make choices under scarcity, and how those choices form market prices and quantities.",
+        "solution": "The unit 1 marquee page defines microeconomics as the study of how people make choices when they cannot have everything they want, and how those individual choices add up into prices, shortages, and surpluses in markets. The page also explicitly rules out (b) finance, (c) microeconomics, and (d) accounting as the subject of this course."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "The unit 1 marquee page lists five things you should be able to do by the final exam. Which of the following is one of them?\n\n(A) Construct a discounted cash flow model for a publicly traded company and compute its intrinsic share price. | (B) Forecast next quarter's GDP growth using a vector autoregression with three lags of consumer spending. | (C) Predict the direction of a price change when conditions in a market shift, by reasoning about which curve moves and which way. | (D) Solve a system of three nonlinear equations using matrix algebra to find a competitive equilibrium.",
+        "answer": "(C) Predict the direction of a price change when conditions in a market shift, by reasoning about which curve moves and which way.",
+        "solution": "The marquee page lists five end-of-course capabilities: read a supply-and-demand diagram fluently, predict the direction of a price change when conditions shift, reason about winners and losers from a policy, separate positive from normative claims, and read economic news with skepticism. Option (a) restates the second of these directly. The other three options describe tasks from other fields or assume math the marquee explicitly rules out."
+      }
+    ]
+  },
+  "u2-law-of-demand-and-supply": {
+    "id": "u2-law-of-demand-and-supply",
+    "title": "Law of demand and supply",
+    "badge": "U2",
+    "group": "U2",
+    "groupTitle": "The Economic Way of Thinking",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "A vendor in a downtown food court has 200 hamburgers to sell during the lunch rush. Two thousand office workers head to lunch within the same hour. Hamburgers in this food court at this hour are best described as:\n\n(A) Rare, because the absolute available count is only 200. | (B) Scarce: quantity available falls short of demand at zero price. | (C) A free good, because hamburgers are widely mass-produced. | (D) Neither scarce nor rare, because hamburgers are common.",
+        "answer": "(B) Scarce: quantity available falls short of demand at zero price.",
+        "solution": "Scarcity is the gap between what is available and what people would want at a price of zero. A common good can still be scarce. The 200 hamburgers fall short of the 2{,}000 office workers' potential demand, so hamburgers are scarce here."
+      }
+    ]
+  },
+  "u2-scarcity": {
+    "id": "u2-scarcity",
+    "title": "Scarcity",
+    "badge": "U2",
+    "group": "U2",
+    "groupTitle": "The Economic Way of Thinking",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "Which of the following resources is NOT scarce in the economic sense?\n\n(A) Drinkable water in a major city's tap-water distribution system. | (B) Sunlight in summer at sea level on Earth. | (C) Skilled software engineers in a tight labor market. | (D) Time you can spend studying for a final exam.",
+        "answer": "(B) Sunlight in summer at sea level on Earth.",
+        "solution": "Sunlight at sea level is the textbook example of a non-scarce resource: anyone can use as much as they want without diminishing another's supply. The other three involve resources whose use by one party reduces what's available to others, or whose supply requires production resources."
+      }
+    ]
+  },
+  "u2-opportunity-cost": {
+    "id": "u2-opportunity-cost",
+    "title": "Opportunity cost",
+    "badge": "U2",
+    "group": "U2",
+    "groupTitle": "The Economic Way of Thinking",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Compute:",
+        "problem": "You have a free Saturday afternoon (4 hours). Three things you could do:\n1. Work an extra shift at your part-time job paying $20 per hour for 4 hours.\n2. See a matinee movie that you value at $40 in enjoyment.\n3. Take a free hike that you value at $30 in enjoyment.\nYou decide to go to the movie. What is the opportunity cost of going to the movie, in dollars?",
+        "answer": "80",
+        "solution": "The opportunity cost is the value of the next-best alternative forgone. Working 4 hours at $20 per hour pays $80. The hike is worth $30. The next-best alternative is the work shift at $80. Opportunity cost = $80."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "A student is choosing between majoring in computer science or majoring in graphic design. She has researched both. Her best guess of starting salaries: $75,000 for computer science, $48,000 for graphic design. She would enjoy graphic design about $10,000 more per year than computer science (in her own valuation of enjoyment-in-dollars). She chooses graphic design. What is the opportunity cost of her decision, in dollars per year?\n\n(A) $48,000: the starting salary from the major she actually chose. | (B) $27,000: the difference between the two starting salaries. | (C) $75,000: the full starting salary of the path she gave up. | (D) $65,000: the CS salary minus the enjoyment premium she places on graphic design.",
+        "answer": "(C) $75,000: the full starting salary of the path she gave up.",
+        "solution": "Opportunity cost is the value of the single next-best alternative forgone. The next-best alternative is the CS path; its value is the $75,000 starting salary. The $10,000 enjoyment premium for graphic design tilts her decision toward it but does not change what she gave up by not taking CS."
+      }
+    ]
+  },
+  "u2-marginal-analysis": {
+    "id": "u2-marginal-analysis",
+    "title": "Marginal analysis",
+    "badge": "U2",
+    "group": "U2",
+    "groupTitle": "The Economic Way of Thinking",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "A factory operator is deciding whether to produce one more widget. Producing it would cost an additional $15 in materials and labor and the widget would sell for $20. The factory's fixed costs for the month are $50,000. Should the operator produce the additional widget, and why?\n\n(A) No. The factory's fixed costs are too high. | (B) Yes. Marginal benefit exceeds marginal cost. | (C) Yes. Revenue per widget is positive. | (D) No. Total cost per widget exceeds the price.",
+        "answer": "(B) Yes. Marginal benefit exceeds marginal cost.",
+        "solution": "The decision-relevant comparison is marginal benefit versus marginal cost. MB = $20 (price of the additional widget). MC = $15 (additional materials and labor). Since MB > MC, producing one more widget adds $5 to profit. The $50,000 in fixed costs is not part of the marginal calculation."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "You paid $15 for a movie ticket. Thirty minutes in, you realize the movie is much worse than you expected. Your options are: leave now and do something else, or stay through the remaining 90 minutes. Using marginal reasoning, the $15 should be treated as:\n\n(A) A marginal cost of staying that you are trying to recover. | (B) A sunk cost that should not influence the decision. | (C) The marginal benefit of leaving the theater right now. | (D) A reason to stay, because you should 'get your money's worth.'",
+        "answer": "(B) A sunk cost that should not influence the decision.",
+        "solution": "The $15 is sunk: it has already been paid and cannot be recovered. The marginal decision (stay or leave) compares the marginal benefit of staying (some enjoyment over the next 90 minutes) to the marginal cost (90 minutes of your time and the cost of staying when the movie isn't good). The $15 does not appear on either side of that comparison."
+      }
+    ]
+  },
+  "u2-positive-vs-normative": {
+    "id": "u2-positive-vs-normative",
+    "title": "Positive vs normative",
+    "badge": "U2",
+    "group": "U2",
+    "groupTitle": "The Economic Way of Thinking",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "Which of the following statements is POSITIVE (rather than normative)?\n\n(A) The federal government should set a much higher carbon tax on emitters. | (B) A $40 per ton carbon tax would reduce U.S. emissions by about 8% in five years. | (C) It is unfair to burden American businesses with strict environmental regulation. | (D) Citizens have a moral duty to reduce their personal carbon footprint each year.",
+        "answer": "(B) A $40 per ton carbon tax would reduce U.S. emissions by about 8% in five years.",
+        "solution": "A positive statement can in principle be checked against evidence. Option B makes a specific empirical prediction that economists could study and either confirm or refute. The other three rest on moral or ethical premises rather than facts."
+      },
+      {
+        "prompt": "True or false:",
+        "problem": "The statement \"a federal minimum wage of $15 per hour reduces employment of low-wage workers\" is a positive statement.",
+        "answer": "True",
+        "solution": "A positive statement describes how the world is and can in principle be checked against data. Employment responses to a minimum wage are an empirical claim. Whether the policy is desirable is a separate, normative question."
+      }
+    ]
+  },
+  "u2-ceteris-paribus": {
+    "id": "u2-ceteris-paribus",
+    "title": "Ceteris paribus",
+    "badge": "U2",
+    "group": "U2",
+    "groupTitle": "The Economic Way of Thinking",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "True or false:",
+        "problem": "True or False. When an economist says 'ceteris paribus, a price increase reduces the quantity demanded,' the economist is asserting that in the real world all other factors stay constant when the price changes.",
+        "answer": "False",
+        "solution": "Ceteris paribus is a modeling device that holds other factors fixed in the model so the price-on-quantity channel can be analyzed in isolation. It does not assert that other factors stay constant in the real world; in the real world they often change at the same time as the price. The clause says: if we want to isolate this one channel, we conceptually freeze the others."
+      },
+      {
+        "prompt": "True or false:",
+        "problem": "The phrase \"ceteris paribus\" means \"holding everything else equal.\"",
+        "answer": "True",
+        "solution": "Ceteris paribus is the working assumption that isolates one effect at a time by holding all other variables fixed."
+      }
+    ]
+  },
+  "u3-law-of-demand-and-supply": {
+    "id": "u3-law-of-demand-and-supply",
+    "title": "Law of demand and supply",
+    "badge": "U3",
+    "group": "U3",
+    "groupTitle": "Demand",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "The price of organic apples rises from $3 to $4 per pound. Shoppers buy fewer organic apples as a result. Which of the following best describes what happened?\n\n(A) The demand curve for organic apples shifted to the left. | (B) There was a movement up and to the left along the existing demand curve. | (C) The supply curve for organic apples shifted to the right. | (D) The demand curve for organic apples became more inelastic.",
+        "answer": "(B) There was a movement up and to the left along the existing demand curve.",
+        "solution": "The good's own price is on the vertical axis of the supply-and-demand graph. A change in the price moves the market along the existing curves, not by shifting them. A demand shift requires a change in a non-price determinant (income, tastes, prices of related goods, population, expectations)."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "A widely-reported medical study finds that drinking two cups of coffee a day reduces the risk of heart disease. The story gets heavy news coverage for a week. The price of coffee does not change. Which of the following best describes the effect on the market for coffee?\n\n(A) The supply curve for coffee shifts to the right because farmers will plant more. | (B) There is a movement up and to the right along the existing demand curve for coffee. | (C) The demand curve for coffee shifts to the right because buyer tastes have changed. | (D) The demand curve for coffee becomes flatter (more elastic) at the current price.",
+        "answer": "(C) The demand curve for coffee shifts to the right because buyer tastes have changed.",
+        "solution": "A change in buyer tastes is one of the five shifters of the demand curve. The price of the good itself has not changed, so this is a shift, not a movement. Favorable news raises buyers' willingness to buy coffee at every price, so the curve shifts to the right."
+      }
+    ]
+  },
+  "u3-income-and-substitution-effects": {
+    "id": "u3-income-and-substitution-effects",
+    "title": "Income and substitution effects",
+    "badge": "U3",
+    "group": "U3",
+    "groupTitle": "Demand",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "Gasoline becomes substantially cheaper. Holding everything else equal, what happens to the demand curve for large SUVs?\n\n(A) It shifts left, because SUV ownership costs include fuel. | (B) It shifts right, because gasoline and SUVs are complements. | (C) It does not shift; quantity demanded of SUVs simply rises along the existing curve. | (D) It shifts right, because gasoline and SUVs are substitutes.",
+        "answer": "(B) It shifts right, because gasoline and SUVs are complements.",
+        "solution": "1 pt. Auto-graded MCQ."
+      },
+      {
+        "prompt": "True or false:",
+        "problem": "An inferior good is one for which demand falls when buyers' incomes rise.",
+        "answer": "True",
+        "solution": "By definition, an inferior good is one whose demand decreases with income. Normal goods are the opposite case."
+      }
+    ]
+  },
+  "u3-why-demand-slopes-down": {
+    "id": "u3-why-demand-slopes-down",
+    "title": "Why demand slopes down",
+    "badge": "U3",
+    "group": "U3",
+    "groupTitle": "Demand",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "The price of beef rises sharply. A shopper responds by buying less beef this month, partly by buying chicken instead, and partly by buying less meat overall because the family's grocery budget no longer stretches as far. Which pair of effects does this scenario illustrate?\n\n(A) The law of supply (beef sellers raised the price) and a movement along the supply curve. | (B) A shift of the demand curve for beef and a shift of the demand curve for chicken in opposite directions. | (C) The substitution effect (switching to chicken) and the income effect (less real purchasing power). | (D) Two independent applications of the law of demand, one for beef and one for chicken.",
+        "answer": "(C) The substitution effect (switching to chicken) and the income effect (less real purchasing power).",
+        "solution": "The two reasons demand slopes downward are the substitution effect (buyers swap into cheaper alternatives) and the income effect (real purchasing power falls). The scenario shows both: switching to chicken (substitution) and cutting overall meat purchases (income). Both push the quantity of beef demanded down when its price rises, which is exactly why the curve slopes downward."
+      },
+      {
+        "prompt": "True or false:",
+        "problem": "When the price of a good rises, the substitution effect leads buyers to purchase more of that good and less of its substitutes.",
+        "answer": "False",
+        "solution": "The substitution effect runs the opposite way. When a good's price rises, buyers substitute away from it toward cheaper alternatives, buying less of the now-expensive good and more of its substitutes."
+      }
+    ]
+  },
+  "u4-law-of-demand-and-supply": {
+    "id": "u4-law-of-demand-and-supply",
+    "title": "Law of demand and supply",
+    "badge": "U4",
+    "group": "U4",
+    "groupTitle": "Supply",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "Which of the following statements is the best one-sentence summary of the *law of supply*?\n\n(A) Producers will always supply the quantity demanded at any given price. | (B) Holding everything else equal, a higher price leads to a lower quantity supplied. | (C) When the cost of producing a good falls, producers will supply more of it at every price. | (D) Holding everything else equal, a higher price leads to a higher quantity supplied.",
+        "answer": "(D) Holding everything else equal, a higher price leads to a higher quantity supplied.",
+        "solution": "The law of supply states that, ceteris paribus, higher price leads to higher quantity supplied. The supply curve slopes upward as a consequence."
+      },
+      {
+        "prompt": "Compute:",
+        "problem": "A market for cherry tomatoes has supply $Q_s = 15 + 3P$, where $P$ is in dollars per pint and $Q_s$ is in pints per day. Compute the quantity supplied at $P = 8$.",
+        "answer": "39",
+        "solution": "Substitute $P = 8$: $Q_s = 15 + 3(8) = 15 + 24 = 39$ pints per day."
+      }
+    ]
+  },
+  "u4-determinants-of-demand-and-supply": {
+    "id": "u4-determinants-of-demand-and-supply",
+    "title": "Determinants of demand and supply",
+    "badge": "U4",
+    "group": "U4",
+    "groupTitle": "Supply",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "The price of crude oil rises from $70 to $90 per barrel. In response, U.S. shale oil producers bring previously idled wells back into operation, and total U.S. crude oil production rises. Which of the following best describes this event?\n\n(A) A shift of the supply curve to the left; idled wells coming back online raised costs. | (B) A shift of the supply curve to the right; the higher price increased supply. | (C) A movement along the supply curve, upward and to the right; the curve itself did not shift. | (D) Neither a shift nor a movement; supply is unchanged because production capacity existed before.",
+        "answer": "(C) A movement along the supply curve, upward and to the right; the curve itself did not shift.",
+        "solution": "When the good's own price changes, we move along the supply curve. Sellers responding to a higher price with higher quantity supplied is the upward slope of the existing curve; the curve itself does not shift."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "The wholesale price of cocoa beans rises sharply because of a poor harvest in West Africa. Holding everything else equal, what happens to the supply curve for chocolate bars?\n\n(A) It does not shift; quantity supplied falls along the existing curve. | (B) It shifts right, because chocolate makers will produce more to cover their costs. | (C) It shifts left, because chocolate makers face higher input costs. | (D) It shifts left, because demand for chocolate has fallen.",
+        "answer": "(C) It shifts left, because chocolate makers face higher input costs.",
+        "solution": "1 pt. Auto-graded MCQ."
+      }
+    ]
+  },
+  "u5-predicting-equilibrium-changes": {
+    "id": "u5-predicting-equilibrium-changes",
+    "title": "Predicting equilibrium changes",
+    "badge": "U5",
+    "group": "U5",
+    "groupTitle": "Equilibrium and Markets",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Compute:",
+        "problem": "In a market for cups of lemonade, $Q_d = 80 - 4P$ and $Q_s = 20 + 6P$, with $P$ in dollars and $Q$ in cups. Compute the equilibrium price $P^*$ in dollars.",
+        "answer": "6",
+        "solution": "Set $Q_d = Q_s$: $80 - 4P = 20 + 6P$. Combine: $60 = 10P$. So $P^* = 6$."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "Which of the following best describes the equilibrium price in a competitive market?\n\n(A) The price at which sellers earn the largest possible profit on each unit sold. | (B) The price set by the government to ensure fair access to the good. | (C) The price at which buyers as a group obtain the highest possible total satisfaction. | (D) The price at which the quantity demanded equals the quantity supplied.",
+        "answer": "(D) The price at which the quantity demanded equals the quantity supplied.",
+        "solution": "Equilibrium is the price $P^*$ at which $Q_d(P^*) = Q_s(P^*)$. Option (a) states this directly. The other options describe related but distinct ideas: price controls, consumer welfare, and producer profit."
+      }
+    ]
+  },
+  "u5-prices-as-signals": {
+    "id": "u5-prices-as-signals",
+    "title": "Prices as signals",
+    "badge": "U5",
+    "group": "U5",
+    "groupTitle": "Equilibrium and Markets",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "A new strain of high-yield wheat is released, and farmers can produce more wheat at every price than they could before. Assuming demand is unchanged, what happens to the equilibrium price $P^*$ and equilibrium quantity $Q^*$ in the wheat market?\n\n(A) $P^*$ rises and $Q^*$ falls, because the supply curve shifts left when production gets easier. | (B) $P^*$ rises and $Q^*$ rises, because the new technology raises buyers' willingness to pay. | (C) $P^*$ falls and $Q^*$ falls, because cheaper-to-produce wheat is treated as a lower-quality good. | (D) $P^*$ falls and $Q^*$ rises, because the supply curve shifts right against unchanged demand.",
+        "answer": "(D) $P^*$ falls and $Q^*$ rises, because the supply curve shifts right against unchanged demand.",
+        "solution": "A productivity gain on the seller side shifts the supply curve to the right. On the same demand curve, the new supply intersects at a lower price and a higher quantity. This is the supply-right case in the four-case framework on the marquee."
+      },
+      {
+        "prompt": "Compute:",
+        "problem": "Start from the T-shirt market with $Q_d = 200 - 10P$ and $Q_s = 50 + 5P$, where $P$ is in dollars and $Q$ is in thousands of shirts. A celebrity endorsement shifts demand to the right: at every price, buyers now want 30 thousand more shirts than before. The new demand curve is $Q_d^{new} = 230 - 10P$. Supply is unchanged.\n1. Compute the new equilibrium price $P^*$ in dollars.\n2. Compute the new equilibrium quantity $Q^*$ in thousands of shirts.",
+        "answer": "P* = 12 dollars; Q* = 110 thousand shirts.",
+        "solution": "Set the new demand equal to supply: $230 - 10P = 50 + 5P$. Collect: $230 - 50 = 5P + 10P$, so $180 = 15P$. Divide: $P^* = 12$. Substitute into new demand: $Q^* = 230 - 10 \\cdot 12 = 110$. Check with supply: $Q^* = 50 + 5 \\cdot 12 = 110$. They agree. Compared to the original $(P^*, Q^*) = (10, 100)$, both rose: this is the demand-right case."
+      }
+    ]
+  },
+  "u6-law-of-demand-and-supply": {
+    "id": "u6-law-of-demand-and-supply",
+    "title": "Law of demand and supply",
+    "badge": "U6",
+    "group": "U6",
+    "groupTitle": "Welfare, Taxation, and Skill Benchmark",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "A city council passes a law making it illegal to charge more than $$1,500$ per month in rent for a one-bedroom apartment. In the same city before the law, the average market rent for a one-bedroom apartment was $$2,400$ per month. The law is best described as:\n\n(A) A non-binding price floor. | (B) A non-binding price ceiling. | (C) A binding price floor. | (D) A binding price ceiling.",
+        "answer": "(D) A binding price ceiling.",
+        "solution": "(no solution provided)"
+      }
+    ]
+  },
+  "u6-determinants-of-demand-and-supply": {
+    "id": "u6-determinants-of-demand-and-supply",
+    "title": "Determinants of demand and supply",
+    "badge": "U6",
+    "group": "U6",
+    "groupTitle": "Welfare, Taxation, and Skill Benchmark",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Compute:",
+        "problem": "A market has demand $Q_d = 80 - 2P$ and supply $Q_s = -10 + P$, where $P$ is in dollars and $Q$ is in thousands of units. The government sets a price ceiling at $P = \\$20$. Compute the size of the resulting shortage in thousands of units.",
+        "answer": "30",
+        "solution": "At $P = 20$: $Q_d = 80 - 2(20) = 40$. $Q_s = -10 + 20 = 10$. Shortage = $Q_d - Q_s = 40 - 10 = 30$ thousand units. (Equilibrium check: $80 - 2P = -10 + P$ gives $90 = 3P$, $P^* = 30$, above the ceiling, so the ceiling binds.)"
+      }
+    ]
+  },
+  "u6-consumer-and-producer-surplus": {
+    "id": "u6-consumer-and-producer-surplus",
+    "title": "Consumer and producer surplus",
+    "badge": "U6",
+    "group": "U6",
+    "groupTitle": "Welfare, Taxation, and Skill Benchmark",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "Consumer surplus for a single buyer is best defined as:\n\n(A) The price the buyer pays the seller at the equilibrium price. | (B) The buyer's willingness to pay minus the price actually paid. | (C) The seller's revenue from the buyer minus the seller's cost. | (D) The buyer's total income minus the price actually paid.",
+        "answer": "(B) The buyer's willingness to pay minus the price actually paid.",
+        "solution": "1 pt. Auto-graded MCQ."
+      },
+      {
+        "prompt": "Compute:",
+        "problem": "A market has demand $Q_d = 200 - 10P$ and equilibrium at $P^* = 8$, $Q^* = 120$. Compute the consumer surplus, in dollars.",
+        "answer": "720",
+        "solution": "The demand intercept on the price axis is where $Q_d = 0$: $0 = 200 - 10P$, so $P = 20$. Consumer surplus is the triangle with base $Q^* = 120$ and height $20 - 8 = 12$. Area = $\\tfrac{1}{2} \\cdot 120 \\cdot 12 = 720$."
+      }
+    ]
+  },
+  "u6-welfare-effects-of-intervention": {
+    "id": "u6-welfare-effects-of-intervention",
+    "title": "Welfare effects of intervention",
+    "badge": "U6",
+    "group": "U6",
+    "groupTitle": "Welfare, Taxation, and Skill Benchmark",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "A binding minimum wage above the market wage for low-skilled labor creates a surplus of labor in the standard supply-and-demand diagram. In the standard model, this surplus of labor is called:\n\n(A) A binding-constraint adjustment that increases the firm's marginal cost. | (B) An adjustment of the labor-market equilibrium that clears within a few months. | (C) Unemployment among the affected workers in this labor market. | (D) A deadweight loss with no effect on the number of workers employed.",
+        "answer": "(C) Unemployment among the affected workers in this labor market.",
+        "solution": "A binding floor above the market-clearing wage creates an excess of workers willing to work at the higher wage relative to the workers firms want to hire. In the standard model, this excess is called *unemployment*."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "When a per-unit tax reduces the quantity transacted in a market, the deadweight loss is best described as:\n\n(A) The total tax revenue the government collects on the new traded quantity. | (B) The lost value of trades that would have created surplus but no longer occur. | (C) The combined drop in consumer surplus and producer surplus, including the transfer to the government. | (D) The cost the government incurs to administer and enforce the new tax.",
+        "answer": "(B) The lost value of trades that would have created surplus but no longer occur.",
+        "solution": "1 pt. Auto-graded MCQ."
+      }
+    ]
+  },
+  "u8-price-elasticity-of-demand": {
+    "id": "u8-price-elasticity-of-demand",
+    "title": "Price elasticity of demand",
+    "badge": "U8",
+    "group": "U8",
+    "groupTitle": "Elasticity",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "The price of bus tickets in a city rises from $\\$2.00$ to $\\$2.40$. In response, the quantity of bus tickets demanded falls from $10,000$ rides per day to $9,000$ rides per day. Using the simple percent-change formula, what is the absolute value of the price elasticity of demand, and how would you classify this demand?\n\n(A) $|E_d| = 0.50$; demand is inelastic. | (B) $|E_d| = 2.00$; demand is elastic. | (C) $|E_d| = 1.00$; demand is unitary. | (D) $|E_d| = 0.10$; demand is inelastic.",
+        "answer": "(A) $|E_d| = 0.50$; demand is inelastic.",
+        "solution": "$\\%\\Delta P = \\dfrac{2.40 - 2.00}{2.00} \\times 100\\% = 20\\%$. $\\%\\Delta Q_d = \\dfrac{9{,}000 - 10{,}000}{10{,}000} \\times 100\\% = -10\\%$. $|E_d| = |-10\\%/20\\%| = 0.50$. Since $|E_d| < 1$, demand is inelastic."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "Which of the following goods would you expect to have the most **inelastic** demand in the short run?\n\n(A) Restaurant meals over the course of a year. | (B) A specific brand of corn chips at a grocery store. | (C) Insulin for a person with type-1 diabetes. | (D) International vacations booked six months in advance.",
+        "answer": "(C) Insulin for a person with type-1 diabetes.",
+        "solution": "Inelastic demand requires: (1) few substitutes, (2) necessity rather than luxury, (3) short time horizon. Insulin for a type-1 diabetic hits all three."
+      }
+    ]
+  },
+  "u8-income-and-cross-price-elasticity": {
+    "id": "u8-income-and-cross-price-elasticity",
+    "title": "Income and cross-price elasticity",
+    "badge": "U8",
+    "group": "U8",
+    "groupTitle": "Elasticity",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "True or false:",
+        "problem": "**True or False.** A negative cross-price elasticity of demand between two goods indicates that the goods are substitutes.",
+        "answer": "b",
+        "solution": "False. A negative cross-price elasticity means that when one good's price rises, demand for the other falls. That is the pattern for **complements** (peanut butter and jelly), not substitutes. Substitutes have positive cross-price elasticity."
+      }
+    ]
+  },
+  "u8-elasticity-and-revenue": {
+    "id": "u8-elasticity-and-revenue",
+    "title": "Elasticity and revenue",
+    "badge": "U8",
+    "group": "U8",
+    "groupTitle": "Elasticity",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "True or false:",
+        "problem": "**True or False.** If demand for a good is inelastic ($|E_d| < 1$), then raising the price will increase total revenue, while lowering the price will decrease total revenue.",
+        "answer": "a",
+        "solution": "When demand is inelastic, $|\\%\\Delta Q_d| < |\\%\\Delta P|$, so a price increase causes a smaller percentage quantity drop, and total revenue ($P \\times Q$) rises. The reverse holds for a price decrease. This is the revenue-prediction rule from OpenStax 5.3 and the 2012-corn-drought example in MRU V5.2."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "A coffee shop raises its drip-coffee price by 5 percent and observes a 2 percent drop in quantity sold. What happens to total revenue from drip coffee, and what does that tell you about the elasticity?\n\n(A) Total revenue rises; demand is inelastic in this range. | (B) Total revenue falls; demand is elastic in this range. | (C) Total revenue is unchanged; demand has unit elasticity. | (D) Total revenue falls; the percent change in quantity exceeds the percent change in price.",
+        "answer": "(A) Total revenue rises; demand is inelastic in this range.",
+        "solution": "$|E_d| = |{-2\\%}/{+5\\%}| = 0.4$. Inelastic. Price up, quantity down by less in percent terms, revenue rises."
+      }
+    ]
+  },
+  "u8-tax-incidence": {
+    "id": "u8-tax-incidence",
+    "title": "Tax incidence",
+    "badge": "U8",
+    "group": "U8",
+    "groupTitle": "Elasticity",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "A government imposes a per-unit tax on a market in which demand is highly inelastic and supply is highly elastic. Which of the following best describes how the tax burden is divided between buyers and sellers, and why?\n\n(A) Buyers bear most of the tax because elastic supply means sellers can easily exit the market. | (B) Sellers bear most of the tax, because the legal incidence is on sellers when supply is elastic. | (C) The tax is split evenly because every tax is shared 50/50 between buyers and sellers. | (D) Buyers bear most of the tax, because the more-inelastic side of the market cannot easily walk away.",
+        "answer": "(D) Buyers bear most of the tax, because the more-inelastic side of the market cannot easily walk away.",
+        "solution": "The tax-incidence rule: a per-unit tax falls more heavily on the more-inelastic side of the market. Inelastic demand + elastic supply means demand is the more-inelastic side, so buyers bear most of the tax. This is the central result from OpenStax Section 5.3 (\"Elasticity and Tax Incidence\")."
+      },
+      {
+        "prompt": "Compute:",
+        "problem": "A government imposes a per-unit tax on bottled water. The price elasticity of supply is $E_s = 2.0$ and the absolute price elasticity of demand is $|E_d| = 0.5$. The share of the tax burden borne by **buyers** equals $E_s / (E_s + |E_d|)$. Compute the buyer share as a decimal, rounded to two places.",
+        "answer": "0.80",
+        "solution": "Buyer share $= E_s / (E_s + |E_d|) = 2.0 / (2.0 + 0.5) = 2.0/2.5 = 0.80$. Buyers bear 80 percent of the tax."
+      }
+    ]
+  },
+  "u9-normal-vs-inferior-goods": {
+    "id": "u9-normal-vs-inferior-goods",
+    "title": "Normal vs inferior goods",
+    "badge": "U9",
+    "group": "U9",
+    "groupTitle": "Labor Markets",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "True or false:",
+        "problem": "**True or False.** When a consumer's income rises and the consumer responds by buying *less* of a particular good, that good is classified as an inferior good.",
+        "answer": "True",
+        "solution": "2 pts."
+      },
+      {
+        "prompt": "True or false:",
+        "problem": "**True or False.** A good is classified as **inferior** when its price rises faster than the consumer's income.",
+        "answer": "b",
+        "solution": "False. An inferior good is defined by how demand responds to **income** changes, not price. When income rises, demand for an inferior good falls (and vice versa). Bus tickets and instant ramen are common examples. The classification has nothing to do with how prices move."
+      }
+    ]
+  },
+  "u9-labor-demand-and-supply": {
+    "id": "u9-labor-demand-and-supply",
+    "title": "Labor demand and supply",
+    "badge": "U9",
+    "group": "U9",
+    "groupTitle": "Labor Markets",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "A firm sells its output in a perfectly competitive market. According to the labor-market theory in OpenStax Section 14.1, the firm's value of the marginal product of labor (VMP) is computed as:\n\n(A) Output price multiplied by total quantity of labor | (B) MP of labor multiplied by the wage rate | (C) Total revenue divided by the number of workers | (D) MP of labor multiplied by the price of the output",
+        "answer": "(D) MP of labor multiplied by the price of the output",
+        "solution": "2 pts."
+      },
+      {
+        "prompt": "Compute:",
+        "problem": "A firm sells widgets in a competitive market at $5 per widget. The marginal product of the fourth worker hired is 7 widgets per hour. To the nearest dollar, what is the maximum hourly wage the firm would be willing to pay this fourth worker?",
+        "answer": "35",
+        "solution": "VMP = MP_L x P = 7 x $5 = $35/hour. A profit-maximizing firm pays up to (but no more than) VMP."
+      }
+    ]
+  },
+  "u9-minimum-wage-standard-model": {
+    "id": "u9-minimum-wage-standard-model",
+    "title": "Minimum wage standard model",
+    "badge": "U9",
+    "group": "U9",
+    "groupTitle": "Labor Markets",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "In the standard supply-and-demand model of a competitive labor market, a minimum wage set **above** the market-clearing wage produces which combination of effects?\n\n(A) Quantity demanded falls and quantity supplied rises, creating a labor surplus. | (B) Quantity of labor demanded rises because firms must pay more per worker. | (C) Quantity of labor supplied falls because workers are discouraged. | (D) No effect, because firms simply pass the cost to consumers.",
+        "answer": "(A) Quantity demanded falls and quantity supplied rises, creating a labor surplus.",
+        "solution": "A binding wage floor sits above equilibrium. Read along the labor demand curve: $Q_d$ falls. Read along the labor supply curve: $Q_s$ rises. The gap is unemployment."
+      },
+      {
+        "prompt": "Compute:",
+        "problem": "In a small competitive retail labor market, labor demand is $Q_d = 1000 - 50w$ and labor supply is $Q_s = 200 + 50w$, where $w$ is the hourly wage in dollars and $Q$ is workers. A minimum wage of $\\$10$ per hour is imposed. How many workers are unemployed (surplus of labor) at the minimum wage?",
+        "answer": "200",
+        "solution": "At $w = 10$: $Q_d = 1000 - 50(10) = 500$. $Q_s = 200 + 50(10) = 700$. Surplus $= Q_s - Q_d = 700 - 500 = 200$ workers unemployed. (For reference, the equilibrium wage solves $1000-50w = 200+50w \\Rightarrow w=8$, so $\\$10$ is binding.)"
+      }
+    ]
+  },
+  "u10-comparative-advantage": {
+    "id": "u10-comparative-advantage",
+    "title": "Comparative advantage",
+    "badge": "U10",
+    "group": "U10",
+    "groupTitle": "International Trade",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "France can produce one sweater with 1 worker and one bottle of wine with 1 worker. Tunisia can produce one sweater with 2 workers and one bottle of wine with 3 workers. Which country has the comparative advantage in which good?\n\n(A) France has the absolute advantage in both goods and the comparative advantage in sweaters. | (B) France has the absolute advantage in both goods and the comparative advantage in both. | (C) Tunisia has the absolute advantage in wine and the comparative advantage in wine. | (D) France has the absolute advantage in both goods and the comparative advantage in wine.",
+        "answer": "(D) France has the absolute advantage in both goods and the comparative advantage in wine.",
+        "solution": "Compute opportunity costs explicitly. In France, 1 sweater costs the same labor as 1 wine (both 1 worker), so OC of one sweater = 1 wine. In Tunisia, 1 sweater takes 2 workers and 1 wine takes 3 workers, so OC of one sweater = 2/3 wine. Tunisia's OC of a sweater (2/3) is less than France's (1), so Tunisia has the comparative advantage in sweaters. By the symmetric argument, France's OC of one wine = 1 sweater, Tunisia's = 3/2 sweater, so France has the comparative advantage in wine. France has the absolute advantage in both (fewer workers per unit of either good) but the comparative advantage in wine only."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "A country has a **comparative advantage** in producing a good when:\n\n(A) Its workers are paid less than workers producing the same good elsewhere. | (B) It can produce more units of that good per worker than another country. | (C) It produces that good using fewer total resources than any other country. | (D) It can produce that good at a lower opportunity cost than another country.",
+        "answer": "(D) It can produce that good at a lower opportunity cost than another country.",
+        "solution": "Comparative advantage: lower opportunity cost. A country can have an absolute disadvantage in everything and still have a comparative advantage in something."
+      }
+    ]
+  },
+  "u10-tariffs-and-quotas": {
+    "id": "u10-tariffs-and-quotas",
+    "title": "Tariffs and quotas",
+    "badge": "U10",
+    "group": "U10",
+    "groupTitle": "International Trade",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Compute:",
+        "problem": "A small open economy has domestic supply $Q_s = P$ and domestic demand $Q_d = 60 - P$ (price in dollars, quantity in thousands of units). The world price is $\\$10$, and the government imposes a tariff of $\\$5$ per unit, raising the domestic price to $\\$15$.\nCompute government tariff revenue, in thousands of dollars.",
+        "answer": "150",
+        "solution": "After the tariff, $Q_s = 15$ and $Q_d = 60 - 15 = 45$. Imports after = $45 - 15 = 30$ (thousand units). Revenue = $\\$5 \\times 30 = \\$150$ thousand."
+      },
+      {
+        "prompt": "Compute:",
+        "problem": "A small country imports steel at the world price of $400 per ton. Domestic supply is $Q_s = 0.25P$ and domestic demand is $Q_d = 400 - 0.5P$ (in thousand tons). The government imposes a $100/ton tariff on imported steel, raising the domestic price faced by buyers to $500. Answer all four parts:\n1. What is the new domestic quantity supplied?\n2. What is the new domestic quantity demanded?\n3. How many thousand tons are now imported?\n4. What is the tariff revenue, in thousand dollars?",
+        "answer": "1. Q_s = 0.25(500) = 125 thousand tons. 2. Q_d = 400 - 0.5(500) = 150 thousand tons. 3. Imports = 150 - 125 = 25 thousand tons. 4. Tariff revenue = $100/ton × 25,000 tons = $2,500,000.",
+        "solution": "Pre-tariff at P=$400: Q_s = 100, Q_d = 200, imports = 100 thousand tons. Post-tariff at P=$500: Q_s = 125 (domestic supply expands as price rises), Q_d = 150 (domestic demand contracts), imports = Q_d - Q_s = 150 - 125 = 25 thousand tons. The tariff has cut imports from 100 to 25 thousand tons. Tariff revenue = tariff per ton × imported quantity = $100 × 25,000 = $2.5 million. Note: the price rise from $400 to $500 also creates deadweight loss on both the supply side (extra domestic production that costs more than $400/ton to make) and the demand side (consumers who would have bought at $400 but not at $500)."
+      }
+    ]
+  },
+  "u10-arguments-for-against-protectionism": {
+    "id": "u10-arguments-for-against-protectionism",
+    "title": "Arguments for/against protectionism",
+    "badge": "U10",
+    "group": "U10",
+    "groupTitle": "International Trade",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "True or false:",
+        "problem": "True or false: An import quota set to admit the same quantity of imports as an equivalent tariff generates the same revenue for the domestic government as the tariff does.",
+        "answer": "b",
+        "solution": "(no solution provided)"
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "A small country imposes a tariff on imported steel. According to the standard small-open-economy model, which group is made worse off?\n\n(A) Domestic consumers of steel. | (B) Domestic producers of steel. | (C) The domestic government. | (D) Foreign producers in countries other than the steel exporter.",
+        "answer": "(A) Domestic consumers of steel.",
+        "solution": "Tariff raises the domestic price toward (but not above) the world-price-plus-tariff. Consumer surplus falls, producer surplus and government revenue rise, deadweight loss is positive. Consumers are the unambiguous losers."
+      }
+    ]
+  },
+  "u10-immigration-and-labor-supply": {
+    "id": "u10-immigration-and-labor-supply",
+    "title": "Immigration and labor supply",
+    "badge": "U10",
+    "group": "U10",
+    "groupTitle": "International Trade",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "A senator argues: 'We should impose a 25 percent tariff on solar panels imported from China so that our young domestic solar-panel industry can build up scale and become competitive within a decade.' Which standard argument for protectionism is the senator most clearly making?\n\n(A) The jobs argument: tariffs preserve domestic employment in the protected industry. | (B) The national-security argument: maintain domestic capacity in goods critical to defense. | (C) The infant-industry argument: protect a young domestic industry until it can compete on its own. | (D) The strategic-trade argument: tariffs as leverage in negotiations with the exporting country.",
+        "answer": "(C) The infant-industry argument: protect a young domestic industry until it can compete on its own.",
+        "solution": "The infant-industry argument is the claim that a young domestic industry needs temporary tariff protection so it can grow to competitive scale and eventually stand on its own. The senator's framing (young industry, build up scale, become competitive within a decade) matches this argument exactly. The other three arguments use different reasoning (national security, current jobs, trade leverage) that the senator did not invoke."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "A region experiences a large inflow of construction workers from abroad over a single year. In the standard model, the immediate effect on the **construction labor market** in that region is best described as:\n\n(A) Labor supply shifts left as native workers exit the market. | (B) Labor demand shifts right because immigrants also consume housing. | (C) Labor supply shifts right, lowering the wage and raising employment. | (D) No effect on this labor market because wages are sticky short-run.",
+        "answer": "(C) Labor supply shifts right, lowering the wage and raising employment.",
+        "solution": "Immigration shifts the labor supply curve right. Reading along the unchanged labor demand curve: lower wage, higher quantity employed in that market. Whether wages then recover depends on demand-side dynamics that are not the immediate effect."
+      }
+    ]
+  },
+  "u11-prices-as-signals-advanced": {
+    "id": "u11-prices-as-signals-advanced",
+    "title": "Prices as signals (advanced)",
+    "badge": "U11",
+    "group": "U11",
+    "groupTitle": "Market Failures",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "During a regional drought, a city continues to charge a flat low rate for water rather than raising the price. Households water their lawns at the same rate as before. From the perspective of prices-as-signals, which best describes the breakdown?\n\n(A) The price is not conveying information about scarcity to consumers. | (B) The price is conveying scarcity correctly, but households ignore it. | (C) Lawn watering is a positive externality the city subsidizes. | (D) Without a price change, the market clears automatically.",
+        "answer": "(A) The price is not conveying information about scarcity to consumers.",
+        "solution": "Prices carry information about scarcity. When scarcity rises but price does not, households receive no signal that they need to economize. This is one of the core arguments for price-based water management."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "A sudden frost destroys most of the orange crop in Florida. The price of orange juice rises sharply at grocery stores across the country. According to the \"prices as signals\" view of markets, what is the most important function of the higher price?\n\n(A) It punishes consumers who insist on buying juice during the shortage. | (B) It rations the now-scarcer juice to highest-value buyers and signals more supply. | (C) It guarantees producers earn higher profits regardless of consumer welfare. | (D) It is purely a transfer from consumers to grocery stores with no economic function.",
+        "answer": "(B) It rations the now-scarcer juice to highest-value buyers and signals more supply.",
+        "solution": "Higher prices in a shortage perform two functions simultaneously: they ration the now-scarcer good to buyers willing to pay the most (those who value it most), and they signal to producers, substitutes, and transporters that bringing additional orange juice (or alternatives) to this market is profitable. Both functions are decentralized: no central planner is required."
+      }
+    ]
+  },
+  "u11-externalities": {
+    "id": "u11-externalities",
+    "title": "Externalities",
+    "badge": "U11",
+    "group": "U11",
+    "groupTitle": "Market Failures",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "A factory emits sulfur dioxide as a by-product of producing steel. The factory pays for its own labor, materials, and energy, but the cost of respiratory illness from the sulfur dioxide falls on residents of the town downwind. Compared with the socially optimal quantity of steel, the unregulated market produces:\n\n(A) A quantity that depends only on the elasticity of steel demand, with no role for the external cost. | (B) Too little steel, because the externality reduces the supply of inputs to steelmaking. | (C) The socially optimal quantity, because the residents could in principle sue for damages. | (D) Too much steel, because the factory ignores the cost it imposes on the town downwind.",
+        "answer": "(D) Too much steel, because the factory ignores the cost it imposes on the town downwind.",
+        "solution": "2 pts. Standard MCQ scoring."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "A factory dumps untreated wastewater into a river. Fishing communities downstream see their catches collapse. In the standard externality framework, the market for the factory's product produces:\n\n(A) More output than is socially optimal. | (B) Less output than is socially optimal. | (C) Exactly the socially optimal output. | (D) Zero output in market equilibrium overall.",
+        "answer": "(A) More output than is socially optimal.",
+        "solution": "Negative externality on production: social marginal cost includes the damage to third parties. Market output sets price = private MC, which is below social MC. Result: over-production relative to the social optimum. Deadweight loss is the difference."
+      }
+    ]
+  },
+  "u11-policy-responses-to-externalities": {
+    "id": "u11-policy-responses-to-externalities",
+    "title": "Policy responses to externalities",
+    "badge": "U11",
+    "group": "U11",
+    "groupTitle": "Market Failures",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "A regulator wants to cut total regional emissions of a pollutant in half. Some firms can abate cheaply; others face very high abatement costs. Compared with a command-and-control rule that requires every firm to cut its own emissions by 50%, a cap-and-trade program covering the same total emissions cap will most likely:\n\n(A) Achieve the same emissions cut at the same total cost, because the policies are economically equivalent. | (B) Achieve a larger emissions cut at the same total cost, because permits encourage extra abatement beyond the cap. | (C) Achieve the same total emissions cut at lower total cost, because abatement is concentrated at the lowest-cost firms. | (D) Achieve a smaller emissions cut, because firms with high abatement costs will refuse to participate.",
+        "answer": "(C) Achieve the same total emissions cut at lower total cost, because abatement is concentrated at the lowest-cost firms.",
+        "solution": "2 pts."
+      },
+      {
+        "prompt": "True or false:",
+        "problem": "**True or False.** A cap-and-trade system lets firms that can reduce pollution cheaply do more of the reduction, while firms with high abatement costs reduce less and buy permits from the low-cost reducers.",
+        "answer": "a",
+        "solution": "True. Trading permits at a market price equalizes the marginal cost of abatement across firms, which minimizes the total cost of hitting the aggregate cap. Command-and-control mandates the same percent reduction from every firm and forfeits this efficiency."
+      }
+    ]
+  },
+  "u11-public-goods-and-commons": {
+    "id": "u11-public-goods-and-commons",
+    "title": "Public goods and commons",
+    "badge": "U11",
+    "group": "U11",
+    "groupTitle": "Market Failures",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "A regional groundwater aquifer is shared by hundreds of farms. Any farmer can drill a well and pump water at will; each gallon pumped by one farm is a gallon another farm cannot pump. Using the rivalry and excludability framework, this aquifer is best classified as:\n\n(A) A club good: not rival in consumption, but excludable. | (B) A public good: neither rival in consumption nor excludable. | (C) A private good: rival in consumption and excludable. | (D) A common resource: rival in consumption, but not excludable.",
+        "answer": "(D) A common resource: rival in consumption, but not excludable.",
+        "solution": "2 pts."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "A streetlight on a public road is:\n\n(A) A private good, because the city pays for it. | (B) A common-pool resource, because everyone uses it. | (C) A club good, because access is restricted to road users. | (D) A public good: non-rival and non-excludable.",
+        "answer": "(D) A public good: non-rival and non-excludable.",
+        "solution": "Streetlight: non-rival (light reaches everyone equally), non-excludable (no way to charge per person). That is the public-good corner of the rivalry/excludability matrix."
+      }
+    ]
+  },
+  "u11-asymmetric-information": {
+    "id": "u11-asymmetric-information",
+    "title": "Asymmetric information",
+    "badge": "U11",
+    "group": "U11",
+    "groupTitle": "Market Failures",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "**Moral hazard** is the change in behavior that occurs *after* a person is insured (or otherwise protected) because they no longer bear the full cost of that behavior. **Adverse selection** is the pre-contract self-selection of high-risk types into insurance. **Signaling** is an action the informed party takes to reveal their type. **Screening** is a mechanism the uninformed party uses to sort types.\nWhich of the following is the clearest example of moral hazard?\n\n(A) A health insurer requires a five-hundred-dollar deductible so policyholders share part of any claim cost. | (B) A person who knows they have a chronic illness signs up for the most generous health plan their employer offers. | (C) A college graduate lists their degree on a resume because employers cannot directly observe their work ethic. | (D) After buying comprehensive auto insurance, Priya starts parking on the street instead of in her locked garage.",
+        "answer": "(D) After buying comprehensive auto insurance, Priya starts parking on the street instead of in her locked garage.",
+        "solution": "The defining feature of moral hazard is a behavior change after the contract is signed, driven by the fact that the insured party no longer bears the full cost of the behavior. Only option (a) describes a behavior change that happens after coverage begins. Option (b) is adverse selection (pre-contract self-selection by type). Option (c) is signaling (an informed party reveals type). Option (d) describes a tool insurers use to combat moral hazard, not moral hazard itself."
+      },
+      {
+        "prompt": "True or false:",
+        "problem": "**True or False.** In Akerlof's lemons model, the used-car market fails because buyers know more about each car than sellers do.",
+        "answer": "b",
+        "solution": "False. The asymmetry runs the other way: **sellers** know more about their cars than **buyers** do. Buyers cannot distinguish good cars from lemons, so they pay a price that averages the two. Owners of good cars find that price too low and exit the market. The market collapses toward only lemons."
+      }
+    ]
+  },
+  "u11-corrective-taxes-and-subsidies": {
+    "id": "u11-corrective-taxes-and-subsidies",
+    "title": "Corrective taxes and subsidies",
+    "badge": "U11",
+    "group": "U11",
+    "groupTitle": "Market Failures",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "Under what condition does a Pigouvian tax exactly eliminate the deadweight loss from a negative externality (in the standard model with linear demand and supply)?\n\n(A) When the tax revenue equals the producer surplus lost in the market. | (B) When the per-unit tax equals the marginal external cost of the externality. | (C) When the tax is large enough to reduce market output to zero. | (D) When buyers and sellers are charged the same legal share of the tax.",
+        "answer": "(B) When the per-unit tax equals the marginal external cost of the externality.",
+        "solution": "A Pigouvian tax aligns private marginal cost with social marginal cost when the per-unit tax equals the marginal external cost. With linear demand and constant MEC, this fully closes the wedge between the unregulated private equilibrium and the socially optimal equilibrium, eliminating the DWL the externality created."
+      },
+      {
+        "prompt": "Compute:",
+        "problem": "A paper mill produces pollution that imposes external damages of $\\$8$ per ton of paper produced. The private marginal cost of producing paper is $\\$15$ per ton at the market quantity. What corrective (Pigouvian) tax per ton internalizes the externality?",
+        "answer": "8",
+        "solution": "The optimal Pigouvian tax equals the marginal external damage: $\\$8$ per ton. After the tax, the mill's private cost becomes $\\$15 + \\$8 = \\$23$, which equals the social marginal cost. The market then produces the socially optimal quantity."
+      }
+    ]
+  },
+  "u12-explicit-vs-implicit-costs": {
+    "id": "u12-explicit-vs-implicit-costs",
+    "title": "Explicit vs implicit costs",
+    "badge": "U12",
+    "group": "U12",
+    "groupTitle": "Market Structure",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "Jordan leaves a salaried job paying $70,000 per year to start a consulting firm. The firm has $200,000 in revenue and $130,000 in explicit costs in its first year. Which statement correctly describes Jordan's accounting profit and economic profit?\n\n(A) Accounting profit is $200,000; economic profit is $130,000. | (B) Accounting profit is \\$0; economic profit is $70,000. | (C) Accounting profit is $70,000; economic profit is $70,000. | (D) Accounting profit is $70,000; economic profit is \\$0.",
+        "answer": "(D) Accounting profit is $70,000; economic profit is \\$0.",
+        "solution": "Accounting profit = TR - explicit = 200k - 130k = \\$70k. Implicit cost = \\$70k forgone salary. Economic profit = 200k - 130k - 70k = \\$0."
+      },
+      {
+        "prompt": "True or false:",
+        "problem": "**True or False.** A firm reporting positive accounting profit is necessarily earning positive economic profit.",
+        "answer": "b",
+        "solution": "False. Accounting profit subtracts only explicit costs (cash payments). Economic profit subtracts both explicit and implicit costs (the opportunity cost of the owner's time, the foregone return on capital invested in the business, etc.). A small business showing $30,000$ in accounting profit but whose owner gave up a $50,000$ salary is making negative economic profit."
+      }
+    ]
+  },
+  "u12-fixed-variable-marginal-cost": {
+    "id": "u12-fixed-variable-marginal-cost",
+    "title": "Fixed, variable, marginal cost",
+    "badge": "U12",
+    "group": "U12",
+    "groupTitle": "Market Structure",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "A factory has fixed costs of $2,000 per week and variable costs of \\$3 per unit. If the factory produces 500 units in a week, what is its *average total cost* per unit?\n\n(A) \\$3.00 per unit. | (B) \\$4.00 per unit. | (C) \\$7.00 per unit. | (D) \\$10.00 per unit.",
+        "answer": "(C) \\$7.00 per unit.",
+        "solution": "TC = FC + VC = 2{,}000 + 3 \\cdot 500 = 3{,}500. ATC = TC/Q = 3{,}500/500 = \\$7."
+      },
+      {
+        "prompt": "Compute:",
+        "problem": "A small bakery has fixed costs of $\\$400$ per day and variable costs of $\\$2$ per loaf of bread. At an output of 200 loaves per day, what is the average total cost per loaf (in dollars)? Round to two decimal places.",
+        "answer": "4.00",
+        "solution": "Total cost $= FC + VC = \\$400 + (\\$2 \\times 200) = \\$400 + \\$400 = \\$800$. Average total cost $= TC / Q = \\$800 / 200 = \\$4.00$ per loaf."
+      }
+    ]
+  },
+  "u12-perfect-competition": {
+    "id": "u12-perfect-competition",
+    "title": "Perfect competition",
+    "badge": "U12",
+    "group": "U12",
+    "groupTitle": "Market Structure",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "True or false:",
+        "problem": "True or False: In perfect competition, a firm that raises its price above the market price will lose essentially all of its customers, because rivals sell an identical product at the market price.",
+        "answer": "A",
+        "solution": "True. This is the operational definition of a price taker under perfect competition: many sellers, identical product, so any individual firm faces an effectively horizontal demand at the market price."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "An individual firm in a perfectly competitive market faces a demand curve that is:\n\n(A) Horizontal at the prevailing market price. | (B) Downward sloping, like the market demand curve. | (C) Vertical at the firm's capacity output. | (D) Upward sloping in the firm's output price.",
+        "answer": "(A) Horizontal at the prevailing market price.",
+        "solution": "Each competitive firm is small relative to the market. It can sell its entire output at the market price; raising its own price loses all customers; lowering it sacrifices revenue for no quantity gain. Demand at the firm level is horizontal."
+      }
+    ]
+  },
+  "u12-monopoly": {
+    "id": "u12-monopoly",
+    "title": "Monopoly",
+    "badge": "U12",
+    "group": "U12",
+    "groupTitle": "Market Structure",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Compute:",
+        "problem": "A monopolist faces this demand and cost schedule:\n| Q | P | TC |\n|---|---|---|\n| 1 | \\$50 | \\$20 |\n| 2 | \\$45 | \\$30 |\n| 3 | \\$40 | \\$45 |\n| 4 | \\$35 | \\$65 |\n| 5 | \\$30 | \\$95 |\nWhat is the monopolist's maximum profit (in dollars)? Enter a single integer dollar amount.",
+        "answer": "75",
+        "solution": "TR by row: 50, 90, 120, 140, 150. Profit = TR - TC by row: 30, 60, 75, 75, 55. Maximum profit = \\$75 (achieved at Q=3 or Q=4)."
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "For a monopolist facing a standard downward-sloping demand curve, marginal revenue from selling one more unit is:\n\n(A) Less than the price charged on that unit. | (B) Equal to the price, as in perfect competition. | (C) Greater than the price charged on that unit. | (D) Zero, regardless of the price charged.",
+        "answer": "(A) Less than the price charged on that unit.",
+        "solution": "Selling one more unit requires moving down the demand curve, which means a lower price on every unit. MR per unit = new price minus the revenue lost on previously inframarginal units. So MR < P."
+      }
+    ]
+  },
+  "u12-monopolistic-competition-and-oligopoly": {
+    "id": "u12-monopolistic-competition-and-oligopoly",
+    "title": "Monopolistic competition and oligopoly",
+    "badge": "U12",
+    "group": "U12",
+    "groupTitle": "Market Structure",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "A city has roughly 80 coffee shops. Each shop has its own roast, decor, and brand identity. Customers usually prefer one shop over the others but will switch if their favorite raises prices too much. Entry is relatively easy: a new shop opens about every two months. Which market structure best describes this market?\n\n(A) Perfect competition with many identical sellers. | (B) Monopolistic competition with differentiated sellers. | (C) Oligopoly with a few interdependent sellers. | (D) Monopoly with a single sheltered seller.",
+        "answer": "(B) Monopolistic competition with differentiated sellers.",
+        "solution": "Many sellers + product differentiation + easy entry = monopolistic competition. Each shop has a small amount of pricing power from its brand, but no one firm dominates."
+      },
+      {
+        "prompt": "True or false:",
+        "problem": "**True or False.** In the long run, firms in monopolistic competition earn positive economic profits because each firm sells a differentiated product.",
+        "answer": "b",
+        "solution": "False. Product differentiation gives each firm short-run market power, but in the long run free entry drives economic profit to zero. New firms enter with their own differentiated versions, each existing firm's demand curve shifts left, and the firm settles at a tangency where $P = ATC$ (zero economic profit) at a quantity below minimum efficient scale."
+      }
+    ]
+  },
+  "u13-determinants-of-demand-and-supply": {
+    "id": "u13-determinants-of-demand-and-supply",
+    "title": "Determinants of demand and supply",
+    "badge": "U13",
+    "group": "U13",
+    "groupTitle": "Cumulative Review",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "An avian flu outbreak kills a large share of the country's laying hens. Simultaneously, a popular cookbook author publishes a viral baking series featuring eggs. What is the predicted effect on the equilibrium price and quantity of eggs?\n\n(A) Price rises; quantity change is ambiguous. | (B) Both price and quantity rise unambiguously. | (C) Both price and quantity fall unambiguously. | (D) Price falls; quantity change is ambiguous.",
+        "answer": "(A) Price rises; quantity change is ambiguous.",
+        "solution": "Two shifts: $S$ left (fewer hens), $D$ right (baking trend). Price: both push up, so price rises unambiguously. Quantity: $S$ left pulls quantity down, $D$ right pulls quantity up. The net depends on relative shift magnitudes; ambiguous without more information."
+      }
+    ]
+  },
+  "u13-predicting-equilibrium-changes": {
+    "id": "u13-predicting-equilibrium-changes",
+    "title": "Predicting equilibrium changes",
+    "badge": "U13",
+    "group": "U13",
+    "groupTitle": "Cumulative Review",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Compute:",
+        "problem": "The market for bottled water has demand $Q_d = 200 - 4P$ and supply $Q_s = 6P - 100$, with $P$ in dollars and $Q$ in thousands of bottles.\nA heat wave shifts demand to the right; the new demand is $Q_d' = 230 - 4P$.\nCompute the new equilibrium quantity $Q^*$.",
+        "answer": "Q* = 98 (thousand bottles)",
+        "solution": "Set new demand equal to supply: $230 - 4P = 6P - 100$, so $330 = 10P$ and $P^* = 33$. Then $Q^* = 230 - 4(33) = 230 - 132 = 98$. Check on supply: $Q^* = 6(33) - 100 = 198 - 100 = 98$. Match."
+      }
+    ]
+  },
+  "u13-opportunity-cost": {
+    "id": "u13-opportunity-cost",
+    "title": "Opportunity cost",
+    "badge": "U13",
+    "group": "U13",
+    "groupTitle": "Cumulative Review",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "Maria currently earns $200 for an evening of waiting tables. A friend offers her a one-time evening shift at a catering job that pays $260. If Maria takes the catering job, she will spend $20 on gas to get there. What is her opportunity cost of taking the catering job?\n\n(A) $220 | (B) $200 | (C) $260 | (D) $40",
+        "answer": "(A) $220",
+        "solution": "Opportunity cost is the value of the best forgone alternative plus any direct costs of taking the chosen option. Forgone alternative: $200 waiting tables. Direct cost incurred: $20 gas. Total opportunity cost = $200 + $20 = $220. Maria should take the catering job because the benefit ($260) exceeds the opportunity cost ($220)."
+      }
+    ]
+  },
+  "u13-marginal-analysis": {
+    "id": "u13-marginal-analysis",
+    "title": "Marginal analysis",
+    "badge": "U13",
+    "group": "U13",
+    "groupTitle": "Cumulative Review",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "A graduate of a four-year program with a $$50,000$-per-year job offer is considering a one-year master's program. Tuition is $$30,000$. Living expenses are $$20,000$ whether she works or studies. What is the full opportunity cost of the master's program for that one year?\n\n(A) Tuition plus foregone wages: $$30,000 + $50,000 = $80,000$. | (B) Tuition only: $$30,000$. | (C) Tuition plus living expenses: $$30,000 + $20,000 = $50,000$. | (D) Foregone wages only: $$50,000$.",
+        "answer": "(A) Tuition plus foregone wages: $$30,000 + $50,000 = $80,000$.",
+        "solution": "Opportunity cost compares the chosen path to the next-best alternative. Tuition is paid only if she enrolls. The job is foregone only if she enrolls. Living expenses occur regardless and drop out. Total: $$80,000$."
+      }
+    ]
+  },
+  "u13-monopoly": {
+    "id": "u13-monopoly",
+    "title": "Monopoly",
+    "badge": "U13",
+    "group": "U13",
+    "groupTitle": "Cumulative Review",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Concept:",
+        "problem": "A pharmaceutical company holds a patent on a drug, giving it a monopoly until the patent expires. After expiration, generic versions enter and the market becomes approximately competitive. Compared with the monopoly period, the competitive period produces which combination of changes?\n\n(A) Lower price, higher quantity, smaller deadweight loss. | (B) Lower price, lower quantity, smaller deadweight loss. | (C) Higher price, higher quantity, larger deadweight loss. | (D) No change in price or quantity, smaller deadweight loss.",
+        "answer": "(A) Lower price, higher quantity, smaller deadweight loss.",
+        "solution": "Monopoly: $P > MC$, $Q$ below efficient level, deadweight loss from the units that would be socially valuable but unprofitable for the monopolist. Competition: $P = MC$, $Q$ at efficient level, no deadweight loss. Expiry of a patent is the standard textbook example of moving from monopoly to competition for the same product."
+      }
+    ]
+  },
+  "u13-externalities": {
+    "id": "u13-externalities",
+    "title": "Externalities",
+    "badge": "U13",
+    "group": "U13",
+    "groupTitle": "Cumulative Review",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "True or false:",
+        "problem": "**True or False.** A market that produces a good with a large positive externality (such as childhood vaccines) tends to produce **less** than the socially optimal quantity.",
+        "answer": "a",
+        "solution": "True. Positive externality: social marginal benefit exceeds private marginal benefit (the benefit to others is not captured by the buyer). The market sets $P = $ private MB, which is below social MB. Result: under-production. Standard correction is a subsidy equal to the marginal external benefit."
+      }
+    ]
+  },
+  "u13-price-elasticity-of-demand": {
+    "id": "u13-price-elasticity-of-demand",
+    "title": "Price elasticity of demand",
+    "badge": "U13",
+    "group": "U13",
+    "groupTitle": "Cumulative Review",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "True or false:",
+        "problem": "True or False. If demand for a good is INELASTIC, a price increase will reduce the seller's total revenue.",
+        "answer": "False",
+        "solution": "The revenue rule: when demand is inelastic, quantity demanded falls proportionally less than price rises, so total revenue (P x Q) rises. The statement reverses the correct direction. Inelastic demand + price up = revenue UP. (Elastic demand + price up = revenue down.)"
+      }
+    ]
+  },
+  "u13-elasticity-and-revenue": {
+    "id": "u13-elasticity-and-revenue",
+    "title": "Elasticity and revenue",
+    "badge": "U13",
+    "group": "U13",
+    "groupTitle": "Cumulative Review",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "True or false:",
+        "problem": "**True or False.** A farmer growing wheat (a commodity with inelastic short-run demand) benefits if every other wheat farmer has a bumper crop while his own harvest is average.",
+        "answer": "b",
+        "solution": "False. A bumper crop across the industry shifts the market supply right. Because wheat demand is inelastic, the price falls by a larger percent than the quantity rises, and total revenue across the industry **falls**. An average-yielding farmer caught up in this price collapse sells his normal quantity at a much lower price, so his revenue falls too. This is the classic \"good harvest, bad year\" paradox of agriculture."
+      }
+    ]
+  },
+  "u13-tax-incidence": {
+    "id": "u13-tax-incidence",
+    "title": "Tax incidence",
+    "badge": "U13",
+    "group": "U13",
+    "groupTitle": "Cumulative Review",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Compute:",
+        "problem": "Cigarettes have a short-run absolute demand elasticity of $|E_d| = 0.4$ and a supply elasticity of $E_s = 1.6$. A government imposes a per-unit tax. The share of the tax borne by **sellers** equals $|E_d| / (E_s + |E_d|)$. Compute the seller share as a decimal, rounded to two places.",
+        "answer": "0.20",
+        "solution": "Seller share $= |E_d| / (E_s + |E_d|) = 0.4 / (1.6 + 0.4) = 0.4 / 2.0 = 0.20$. Sellers bear 20 percent; buyers bear 80 percent. Demand is the less elastic side, so buyers bear more."
+      }
+    ]
+  },
+  "u13-comparative-advantage": {
+    "id": "u13-comparative-advantage",
+    "title": "Comparative advantage",
+    "badge": "U13",
+    "group": "U13",
+    "groupTitle": "Cumulative Review",
+    "referenceUrl": "",
+    "referenceLabel": "",
+    "problems": [
+      {
+        "prompt": "Compute:",
+        "problem": "In one hour, Country X can produce 10 units of textiles or 5 units of software. In one hour, Country Y can produce 8 units of textiles or 2 units of software. What is Country Y's opportunity cost of producing **one unit of software**, expressed in units of textiles? Give a number (no units).",
+        "answer": "4",
+        "solution": "In one hour, Country Y gives up 8 textiles to produce 2 software, so one unit of software costs $8/2 = 4$ units of textiles. (Country X gives up 10/5 = 2 textiles per software, so X has the comparative advantage in software.)"
+      },
+      {
+        "prompt": "Concept:",
+        "problem": "Suppose one day of labor in country X produces either 12 bushels of wheat or 3 yards of textiles. The opportunity cost of producing 1 bushel of wheat in country X is:\n\n(A) 1/4 yard of textiles. | (B) 4 yards of textiles. | (C) 3 yards of textiles. | (D) 12 yards of textiles.",
+        "answer": "(A) 1/4 yard of textiles.",
+        "solution": "Opportunity cost of 1 bushel of wheat = textiles given up per bushel = $3 / 12 = 1/4$ yard."
+      }
+    ]
+  }
+};
+
+// ========================= APP STATE =========================
+const state = {
+  selectedSections: new Set(),
+  queue: [],
+  currentIndex: 0,
+  results: [],
+  sessionStart: null,
+  problemStart: null,
+  sessionInterval: null,
+  problemInterval: null,
+  revealed: false,
+  solutionExpanded: false,
+  firstProblemSeen: false,
+};
+
+// ========================= INIT =========================
+document.addEventListener('DOMContentLoaded', () => {
+  loadProblems().then(() => {
+    renderSectionList();
+    document.addEventListener('keydown', handleKeyboard);
+  }).catch(err => {
+    console.error('Failed to load problems.json', err);
+    const container = document.getElementById('section-list');
+    if (container) container.innerHTML = '<div style="padding:20px;color:var(--red)">Failed to load problems. Check console.</div>';
+  });
+});
+
+async function loadProblems() {
+  // Problems are inlined at build time (see BATTING_CAGE_DATA below). This
+  // function is kept for parity with the original fetch-based loader — it
+  // now just copies the inlined data into SECTIONS.
+  if (typeof BATTING_CAGE_DATA === 'object') {
+    for (const k of Object.keys(SECTIONS)) delete SECTIONS[k];
+    Object.assign(SECTIONS, BATTING_CAGE_DATA);
+  }
+}
+
+function renderSectionList() {
+  const container = document.getElementById('section-list');
+  // Group sections by the `group` field (unit / module / whatever the course uses).
+  // If no groups are set, everything lands in a single untitled bucket.
+  const grouped = new Map();
+  for (const [id, sec] of Object.entries(SECTIONS)) {
+    const gid = sec.group || '';
+    if (!grouped.has(gid)) {
+      grouped.set(gid, {
+        title: sec.groupTitle || gid || 'Sections',
+        sections: [],
+        order: grouped.size,
+      });
+    }
+    grouped.get(gid).sections.push(sec);
+  }
+  // Preserve first-seen order (matches problems.json / source CSV order).
+  const ordered = [...grouped.entries()].sort((a, b) => a[1].order - b[1].order);
+
+  let html = '';
+  for (const [gid, group] of ordered) {
+    const label = group.title;
+    html += `<div class="chapter-group">
+      <div class="chapter-group__title">${label}</div>
+      <div class="section-grid">`;
+    for (const sec of group.sections) {
+      html += `<div class="section-card" data-id="${sec.id}" onclick="toggleSection('${sec.id}')">
+        <div class="section-card__num">${sec.badge || sec.id}</div>
+        <div class="section-card__info">
+          <div class="section-card__title">${sec.title}</div>
+          <div class="section-card__count">${sec.problems.length} problems</div>
+        </div>
+        <div class="section-card__check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="4 12 10 18 20 6"/>
+          </svg>
+        </div>
+      </div>`;
+    }
+    html += `</div></div>`;
+  }
+  container.innerHTML = html;
+}
+
+// ========================= SETUP ACTIONS =========================
+function toggleSection(id) {
+  if (state.selectedSections.has(id)) {
+    state.selectedSections.delete(id);
+  } else {
+    state.selectedSections.add(id);
+  }
+  updateSetupUI();
+}
+
+function selectAll() {
+  for (const id of Object.keys(SECTIONS)) state.selectedSections.add(id);
+  updateSetupUI();
+}
+
+function clearAll() {
+  state.selectedSections.clear();
+  updateSetupUI();
+}
+
+function updateSetupUI() {
+  document.querySelectorAll('.section-card').forEach(card => {
+    card.classList.toggle('on-deck', state.selectedSections.has(card.dataset.id));
+  });
+
+  let count = 0;
+  for (const id of state.selectedSections) count += SECTIONS[id].problems.length;
+
+  const countEl = document.getElementById('deck-count');
+  countEl.innerHTML = `<span>${count}</span> problem${count !== 1 ? 's' : ''} on deck`;
+
+  document.getElementById('start-btn').disabled = count === 0;
+}
+
+// ========================= SESSION =========================
+function startSession() {
+  // Build and shuffle queue
+  state.queue = [];
+  for (const id of state.selectedSections) {
+    for (const prob of SECTIONS[id].problems) {
+      state.queue.push({ ...prob, sectionId: id });
+    }
+  }
+  shuffle(state.queue);
+
+  state.currentIndex = 0;
+  state.results = [];
+  state.sessionStart = Date.now();
+  state.revealed = false;
+  state.firstProblemSeen = false;
+
+  document.getElementById('problem-total').textContent = state.queue.length;
+
+  // Start session timer
+  state.sessionInterval = setInterval(updateSessionTimer, 1000);
+
+  showScreen('practice');
+  showProblem();
+}
+
+function endSession() {
+  // If current problem not yet answered, record as skip
+  if (state.currentIndex < state.queue.length && !state.results[state.currentIndex]) {
+    const elapsed = Date.now() - state.problemStart;
+    state.results[state.currentIndex] = {
+      item: state.queue[state.currentIndex],
+      verdict: 'skip',
+      time: elapsed
+    };
+  }
+
+  clearInterval(state.sessionInterval);
+  clearInterval(state.problemInterval);
+  showResults();
+}
+
+function showProblem() {
+  const item = state.queue[state.currentIndex];
+  const sec = SECTIONS[item.sectionId];
+
+  document.getElementById('problem-current').textContent = state.currentIndex + 1;
+  document.getElementById('problem-section-num').textContent = sec.badge || sec.id;
+  document.getElementById('problem-section-title').textContent = sec.title;
+
+  // Show section tag (plain text), hide section link
+  document.getElementById('problem-section-tag').style.display = '';
+  document.getElementById('problem-section-link').classList.remove('visible');
+  document.getElementById('problem-section-link').innerHTML = '';
+
+  // Show prompt text
+  const promptEl = document.getElementById('problem-prompt');
+  promptEl.textContent = item.prompt || '';
+
+  // Render problem (supports prose+math and pure math; see build_problems.py
+  // normalize_problem_or_answer for the source format contract).
+  const probEl = document.getElementById('problem-display');
+  probEl.innerHTML = (item.problem || '').replace(/\n/g, '<br>');
+  renderMathInElement(probEl, {
+    delimiters: [
+      { left: '\\[', right: '\\]', display: true },
+      { left: '\\(', right: '\\)', display: false }
+    ],
+    throwOnError: false
+  });
+
+  // Reset state
+  state.revealed = false;
+  state.solutionExpanded = false;
+  document.getElementById('pre-reveal').style.display = '';
+  document.getElementById('post-reveal').classList.remove('visible');
+  document.getElementById('solution-content').classList.remove('visible');
+  document.getElementById('solution-toggle').classList.remove('expanded');
+  document.getElementById('solution-toggle').querySelector('svg + *') ||
+    (document.getElementById('solution-toggle').childNodes[1].textContent = ' Show walkthrough');
+
+  // Reset verdict button opacity
+  document.querySelectorAll('.verdict-row .btn').forEach(b => b.style.opacity = '');
+
+  // Verdict hint visible on every problem — a gentle reminder of the point.
+  const hintEl = document.getElementById('verdict-hint');
+  hintEl.style.display = '';
+
+  // Start problem timer
+  state.problemStart = Date.now();
+  clearInterval(state.problemInterval);
+  const timerEl = document.getElementById('problem-timer');
+  timerEl.classList.remove('paused');
+  document.getElementById('problem-timer-display').textContent = '0:00';
+  state.problemInterval = setInterval(updateProblemTimer, 1000);
+}
+
+function revealAnswer() {
+  if (state.revealed) return;
+  state.revealed = true;
+
+  // Pause problem timer
+  clearInterval(state.problemInterval);
+  document.getElementById('problem-timer').classList.add('paused');
+
+  // Swap section tag for clickable link
+  const item = state.queue[state.currentIndex];
+  const sec = SECTIONS[item.sectionId];
+  document.getElementById('problem-section-tag').style.display = 'none';
+  const linkEl = document.getElementById('problem-section-link');
+  if (sec.referenceUrl) {
+    linkEl.innerHTML = `<a href="${sec.referenceUrl}" target="_blank" rel="noopener">
+      Review: ${sec.referenceLabel || sec.title}
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+        <polyline points="15 3 21 3 21 9"/>
+        <line x1="10" y1="14" x2="21" y2="3"/>
+      </svg>
+    </a>`;
+    linkEl.classList.add('visible');
+  }
+
+  // Render answer (same format contract as problem)
+  const ansEl = document.getElementById('answer-display');
+  ansEl.innerHTML = (item.answer || '').replace(/\n/g, '<br>');
+  renderMathInElement(ansEl, {
+    delimiters: [
+      { left: '\\[', right: '\\]', display: true },
+      { left: '\\(', right: '\\)', display: false }
+    ],
+    throwOnError: false
+  });
+
+  // Prepare solution
+  const solEl = document.getElementById('solution-content');
+  solEl.innerHTML = item.solution.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+  renderMathInElement(solEl, {
+    delimiters: [
+      { left: '\\[', right: '\\]', display: true },
+      { left: '\\(', right: '\\)', display: false }
+    ],
+    throwOnError: false
+  });
+
+  // Show answer area
+  document.getElementById('pre-reveal').style.display = 'none';
+  document.getElementById('post-reveal').classList.add('visible');
+}
+
+function toggleSolution() {
+  state.solutionExpanded = !state.solutionExpanded;
+  document.getElementById('solution-content').classList.toggle('visible', state.solutionExpanded);
+  const toggle = document.getElementById('solution-toggle');
+  toggle.classList.toggle('expanded', state.solutionExpanded);
+}
+
+function markResult(verdict) {
+  const elapsed = Date.now() - state.problemStart;
+  state.results[state.currentIndex] = {
+    item: state.queue[state.currentIndex],
+    verdict: verdict,
+    time: elapsed
+  };
+
+  // Visual feedback on button
+  const buttons = document.querySelectorAll('.verdict-row .btn');
+  buttons.forEach(b => b.style.opacity = '0.4');
+  if (verdict === 'correct') document.querySelector('.btn--correct').style.opacity = '1';
+  else if (verdict === 'wrong') document.querySelector('.btn--wrong').style.opacity = '1';
+  else document.querySelector('.btn--skip').style.opacity = '1';
+}
+
+function nextProblem() {
+  // Ensure we have a result for current problem
+  if (!state.results[state.currentIndex]) {
+    state.results[state.currentIndex] = {
+      item: state.queue[state.currentIndex],
+      verdict: 'skip',
+      time: Date.now() - state.problemStart
+    };
+  }
+
+  // Reset button opacity
+  document.querySelectorAll('.verdict-row .btn').forEach(b => b.style.opacity = '');
+
+  state.currentIndex++;
+  if (state.currentIndex >= state.queue.length) {
+    endSession();
+  } else {
+    showProblem();
+  }
+}
+
+// ========================= RESULTS =========================
+function showResults() {
+  const totalTime = Date.now() - state.sessionStart;
+  const correct = state.results.filter(r => r && r.verdict === 'correct').length;
+  const wrong = state.results.filter(r => r && r.verdict === 'wrong').length;
+  const skipped = state.results.filter(r => r && r.verdict === 'skip').length;
+  const total = state.results.filter(r => r).length;
+  const answered = correct + wrong;
+  const accuracy = answered > 0 ? Math.round((correct / answered) * 100) : '--';
+
+  // Stats
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-card__value amber">${formatTime(totalTime)}</div>
+      <div class="stat-card__label">Total Time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__value">${total}</div>
+      <div class="stat-card__label">Problems</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__value green">${correct}</div>
+      <div class="stat-card__label">Correct</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__value">${wrong}</div>
+      <div class="stat-card__label">Wrong</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__value">${accuracy}${accuracy !== '--' ? '%' : ''}</div>
+      <div class="stat-card__label">Accuracy</div>
+    </div>
+  `;
+
+  // Table
+  const tbody = document.getElementById('results-body');
+  tbody.innerHTML = '';
+
+  const MATH_DELIMS = [
+    { left: '\\[', right: '\\]', display: true },
+    { left: '\\(', right: '\\)', display: false },
+  ];
+
+  for (let i = 0; i < state.results.length; i++) {
+    const r = state.results[i];
+    if (!r) continue;
+    const sec = SECTIONS[r.item.sectionId];
+
+    const badgeClass = r.verdict === 'correct' ? 'correct' : r.verdict === 'wrong' ? 'wrong' : 'skipped';
+    const badgeText = r.verdict === 'correct' ? '\u2713 Correct' : r.verdict === 'wrong' ? '\u2717 Wrong' : '\u2014 Skipped';
+
+    const tr = document.createElement('tr');
+    tr.className = 'result-row';
+    tr.innerHTML = `
+      <td style="font-family:var(--font-mono);color:var(--text-3);font-size:13px">${i + 1}</td>
+      <td><span style="font-family:var(--font-mono);font-size:12px;color:var(--text-3)">${sec.badge || sec.id}</span></td>
+      <td class="result-problem-cell"></td>
+      <td><span class="result-badge ${badgeClass}">${badgeText}</span></td>
+      <td style="font-family:var(--font-mono);font-size:13px;color:var(--text-2)">${formatTime(r.time)}</td>
+      <td>
+        <div class="result-actions-cell">
+          <button class="result-walkthrough-toggle" data-idx="${i}" onclick="toggleResultWalkthrough(${i})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            Walkthrough
+          </button>
+          ${sec.referenceUrl ? `<a class="review-link" href="${sec.referenceUrl}" target="_blank" rel="noopener" title="External reference">
+            ${sec.referenceLabel || 'Reference'}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </a>` : '<span style="color:var(--text-3);font-size:12px">—</span>'}
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+
+    const cell = tr.querySelector('.result-problem-cell');
+    cell.innerHTML = (r.item.problem || '').replace(/\n/g, '<br>');
+    renderMathInElement(cell, { delimiters: MATH_DELIMS, throwOnError: false });
+
+    // Expandable walkthrough row
+    const wtr = document.createElement('tr');
+    wtr.className = 'result-walkthrough-row';
+    wtr.id = `result-walkthrough-${i}`;
+    wtr.style.display = 'none';
+    wtr.innerHTML = `
+      <td colspan="6">
+        <div class="result-walkthrough-body">
+          <div class="result-walkthrough-section">
+            <div class="result-walkthrough-label">Answer</div>
+            <div class="result-walkthrough-answer"></div>
+          </div>
+          <div class="result-walkthrough-section">
+            <div class="result-walkthrough-label">Walkthrough</div>
+            <div class="result-walkthrough-solution"></div>
+          </div>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(wtr);
+    const ansEl = wtr.querySelector('.result-walkthrough-answer');
+    ansEl.innerHTML = (r.item.answer || '').replace(/\n/g, '<br>');
+    renderMathInElement(ansEl, { delimiters: MATH_DELIMS, throwOnError: false });
+    const solEl = wtr.querySelector('.result-walkthrough-solution');
+    solEl.innerHTML = (r.item.solution || '').replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+    renderMathInElement(solEl, { delimiters: MATH_DELIMS, throwOnError: false });
+  }
+
+  showScreen('results');
+}
+
+function toggleResultWalkthrough(idx) {
+  const row = document.getElementById(`result-walkthrough-${idx}`);
+  const btn = document.querySelector(`.result-walkthrough-toggle[data-idx="${idx}"]`);
+  if (!row) return;
+  const isHidden = row.style.display === 'none';
+  row.style.display = isHidden ? '' : 'none';
+  if (btn) btn.classList.toggle('expanded', isHidden);
+}
+
+function backToSetup() {
+  showScreen('setup');
+}
+
+// ========================= TIMERS =========================
+function updateSessionTimer() {
+  const elapsed = Date.now() - state.sessionStart;
+  document.getElementById('session-timer-display').textContent = formatTime(elapsed);
+}
+
+function updateProblemTimer() {
+  const elapsed = Date.now() - state.problemStart;
+  document.getElementById('problem-timer-display').textContent = formatTime(elapsed);
+}
+
+function formatTime(ms) {
+  const totalSec = Math.floor(ms / 1000);
+  const min = Math.floor(totalSec / 60);
+  const sec = totalSec % 60;
+  return `${min}:${sec.toString().padStart(2, '0')}`;
+}
+
+// ========================= UTILITIES =========================
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(`${name}-screen`).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+}
+
+function toggleTimer() {
+  const body = document.body;
+  const btn = document.getElementById('timer-toggle');
+  const isHidden = body.classList.toggle('timer-hidden');
+  btn.textContent = isHidden ? 'Show timer' : 'Hide timer';
+  btn.setAttribute('aria-pressed', isHidden ? 'true' : 'false');
+  // Persist preference
+  try { localStorage.setItem('battingCage.hideTimer', isHidden ? '1' : '0'); } catch(e) {}
+}
+
+// Restore timer preference on load
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    if (localStorage.getItem('battingCage.hideTimer') === '1') {
+      document.body.classList.add('timer-hidden');
+      const btn = document.getElementById('timer-toggle');
+      if (btn) { btn.textContent = 'Show timer'; btn.setAttribute('aria-pressed','true'); }
+    }
+  } catch(e) {}
+});
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function handleKeyboard(e) {
+  const screen = document.querySelector('.screen.active');
+  if (!screen || screen.id !== 'practice-screen') return;
+
+  if (e.code === 'Space' && !state.revealed) {
+    e.preventDefault();
+    revealAnswer();
+  } else if (state.revealed) {
+    if (e.key === '1') markResult('correct');
+    else if (e.key === '2') markResult('wrong');
+    else if (e.key === '3') markResult('skip');
+    else if (e.code === 'Enter') { e.preventDefault(); nextProblem(); }
+  }
+}
+</script>
+</body>
+</html>
