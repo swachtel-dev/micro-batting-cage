@@ -649,6 +649,33 @@ body > * { position: relative; z-index: 1; }
 
 /* ============================ RATING ============================ */
 
+.verdict {
+  max-width: var(--measure);
+  margin: 0 auto 1.25rem;
+  padding: .7rem 1rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  border-left: 4px solid var(--ochre);
+}
+.verdict-correct { background: var(--forest-tint); border-left-color: var(--forest); color: var(--forest); }
+.verdict-miss    { background: var(--charcoal-tint); border-left-color: var(--charcoal); color: var(--charcoal); }
+.verdict-skip    { background: var(--cream); border-left-color: var(--ink-faint); color: var(--ink-soft); }
+
+.rating-btn.is-suggested {
+  border-color: var(--ochre);
+  box-shadow: 0 0 0 2px var(--ochre) inset;
+}
+.rating-btn.is-suggested::after {
+  content: "suggested";
+  display: block;
+  font-size: .62rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: .15rem;
+}
+
 .rating {
   max-width: var(--measure);
   margin: 0 auto;
