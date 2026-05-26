@@ -71,7 +71,21 @@ th { background: var(--cream-lift); font-family: var(--font-serif); font-style: 
 </table>
 
 <script>
+// KaTeX auto-render does NOT respect \$ escape, so we swap `\$` → U+E000
+// before render, then swap U+E000 → `$` after render.
 window.addEventListener('load', () => {
+  const SENTINEL = '';
+  function walk(root, fn) {
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    const q = []; let n;
+    while ((n = w.nextNode())) q.push(n);
+    q.forEach(fn);
+  }
+  walk(document.body, n => {
+    if (n.nodeValue && n.nodeValue.indexOf('\\$') !== -1) {
+      n.nodeValue = n.nodeValue.replace(/\\\$/g, SENTINEL);
+    }
+  });
   renderMathInElement(document.body, {
     delimiters: [
       { left: '$$', right: '$$', display: true },
@@ -81,6 +95,11 @@ window.addEventListener('load', () => {
     ],
     throwOnError: false,
     strict: 'ignore',
+  });
+  walk(document.body, n => {
+    if (n.nodeValue && n.nodeValue.indexOf(SENTINEL) !== -1) {
+      n.nodeValue = n.nodeValue.split(SENTINEL).join('$');
+    }
   });
 });
 </script>
