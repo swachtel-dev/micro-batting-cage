@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Math Render Smoke Test — Micro Batting Cage</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,700;1,500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="styles.css">
+<style>
+body { padding: 2rem; max-width: 60rem; margin: 0 auto; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid var(--cream-edge); padding: .55rem .8rem; vertical-align: top; font-size: .95rem; }
+th { background: var(--cream-lift); font-family: var(--font-serif); font-style: italic; font-weight: 500; text-align: left; }
+.ok::before { content: "✓ "; color: var(--forest); }
+.warn::before { content: "⚠ "; color: var(--terra); }
+</style>
+</head>
+<body>
+
+<h1 style="font-family:var(--font-serif);font-weight:500;">Math render smoke test</h1>
+<p>Every cell below must render. Visual inspection only — KaTeX uses <code>throwOnError: false</code> so failures degrade gracefully but visibly. Watch for raw <code>$</code> signs leaking, unrendered LaTeX, or escaped backslashes appearing as literal text.</p>
+
+<h2 class="ok">Inline math <code>$...$</code></h2>
+<table>
+  <tr><th>Surface</th><th>Sample</th></tr>
+  <tr><td>Question stem</td><td>The rule of 70 says doubling time $\approx \frac{70}{g}$.</td></tr>
+  <tr><td>MCQ option label</td><td>$y = mx + b$ where $m$ is the slope.</td></tr>
+  <tr><td>MCQ option comment</td><td>Note that $\Delta Q / \Delta P < 0$ for demand.</td></tr>
+  <tr><td>Numerical answer</td><td>$20$ years.</td></tr>
+  <tr><td>Sample answer (SA/LA)</td><td>Elasticity is defined as $\varepsilon = \frac{\%\,\Delta Q}{\%\,\Delta P}$.</td></tr>
+  <tr><td>Key point</td><td>The Solow steady state has $\dot k = 0$.</td></tr>
+  <tr><td>Grading note</td><td>Full credit if $|\varepsilon| > 1$ is stated explicitly.</td></tr>
+  <tr><td>Flashcard front (term)</td><td>$\pi_t$ (inflation rate)</td></tr>
+  <tr><td>Flashcard back</td><td>$M \times V = P \times Y$ — the quantity theory.</td></tr>
+  <tr><td>Scorecard label</td><td>CLO-2 covers $S$-$D$ analysis.</td></tr>
+</table>
+
+<h2 class="ok">Display math <code>$$...$$</code></h2>
+<table>
+  <tr><th>Surface</th><th>Sample</th></tr>
+  <tr><td>Question stem</td><td>Find $y$: $$y = 100 - 5x, \quad x = 12.$$</td></tr>
+  <tr><td>Sample answer</td><td>Real GDP grows by: $$\text{Real}_t = \frac{\text{Nominal}_t}{\text{Deflator}_t} \times 100.$$</td></tr>
+  <tr><td>Flashcard back</td><td>The Fisher equation:
+    $$i \approx r + \pi^e.$$
+  </td></tr>
+</table>
+
+<h2 class="warn">Currency dollar signs <code>\$</code></h2>
+<p>The bank's hard rule: every currency dollar sign in stored prose is written <code>\$</code>. KaTeX <code>auto-render</code> respects backslash-escape and leaves these as literal <code>$</code> at render time. <strong>If you ever see a paired-currency phrase eaten as math, the bank row violates the rule.</strong></p>
+<table>
+  <tr><th>Surface</th><th>Sample (rendered)</th></tr>
+  <tr><td>Question stem</td><td>A worker earns \$15 per hour and works 40 hours per week.</td></tr>
+  <tr><td>Question stem with both</td><td>If real GDP grows from \$20 trillion to \$22 trillion and the deflator rises from $100$ to $105$, real growth $\approx 4.8\%$.</td></tr>
+  <tr><td>MCQ option text</td><td>(A) \$1.50, (B) \$2.00, (C) \$2.50</td></tr>
+  <tr><td>MCQ option comment</td><td>Income rose by \$200, not the price.</td></tr>
+  <tr><td>Numerical answer accept</td><td>\$1{,}200</td></tr>
+  <tr><td>Sample answer</td><td>The deadweight loss is approximately \$3 per gallon $\times$ the quantity reduction.</td></tr>
+  <tr><td>Flashcard back</td><td>Median wage in 1970 vs. 2020: \$3.40 vs. \$28.50 nominal.</td></tr>
+</table>
+
+<h2 class="ok">Mixed and edge cases</h2>
+<table>
+  <tr><td>Two inline math spans</td><td>If $P = 10$ and $Q = 50$, revenue is $P \cdot Q = 500$.</td></tr>
+  <tr><td>Currency adjacent to math</td><td>Buying \$10 of bread when $P_{\text{bread}} = \$2/\text{loaf}$ means $Q = 5$.</td></tr>
+  <tr><td>Greek</td><td>$\alpha + \beta = 1$; $\Delta Y / Y = g$.</td></tr>
+  <tr><td>Subscripts in option labels</td><td>$Y_t$, $C_t$, $I_t$, $G_t$, $NX_t$ — the GDP identity.</td></tr>
+  <tr><td>Fraction stack</td><td>Money multiplier: $m = \frac{1}{rr}$.</td></tr>
+  <tr><td>Backslash that is NOT math</td><td>The directory is C:\Users\you (no math here; rendered as text).</td></tr>
+</table>
+
+<script>
+window.addEventListener('load', () => {
+  renderMathInElement(document.body, {
+    delimiters: [
+      { left: '$$', right: '$$', display: true },
+      { left: '\\[', right: '\\]', display: true },
+      { left: '$',  right: '$',  display: false },
+      { left: '\\(', right: '\\)', display: false },
+    ],
+    throwOnError: false,
+    strict: 'ignore',
+  });
+});
+</script>
+</body>
+</html>
