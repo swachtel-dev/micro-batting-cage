@@ -468,6 +468,7 @@
   }
   /* Timer hidden mode: display still there but faint and unanimated; session timer dimmed */
   body.timer-hidden .problem-timer { visibility: hidden; height: 32px; }
+  .session-timer, .problem-timer, #timer-toggle { display: none !important; }
   body.timer-hidden .session-timer { opacity: 0.3; }
   body.timer-hidden .session-timer__dot { animation: none; }
   .problem-timer .timer-pulse {
@@ -947,7 +948,6 @@
             <th>Section</th>
             <th>Problem</th>
             <th>Result</th>
-            <th>Time</th>
             <th>Where to read or watch</th>
           </tr>
         </thead>
@@ -2495,6 +2495,7 @@ function endSession() {
   showResults();
 }
 
+function bcFmt(s){if(!s)return '';s=String(s).replace(/\\\$/g,'$');s=s.replace(/  ([A-E]\.\s)/g,'\n$1');return s;}
 function showProblem() {
   const item = state.queue[state.currentIndex];
   const sec = SECTIONS[item.sectionId];
@@ -2515,7 +2516,7 @@ function showProblem() {
   // Render problem (supports prose+math and pure math; see build_problems.py
   // normalize_problem_or_answer for the source format contract).
   const probEl = document.getElementById('problem-display');
-  probEl.innerHTML = (item.problem || '').replace(/\n/g, '<br>');
+  probEl.innerHTML = bcFmt(item.problem).replace(/\n/g, '<br>');
   renderMathInElement(probEl, {
     delimiters: [
       { left: '\\[', right: '\\]', display: true },
@@ -2577,7 +2578,7 @@ function revealAnswer() {
 
   // Render answer (same format contract as problem)
   const ansEl = document.getElementById('answer-display');
-  ansEl.innerHTML = (item.answer || '').replace(/\n/g, '<br>');
+  ansEl.innerHTML = bcFmt(item.answer).replace(/\n/g, '<br>');
   renderMathInElement(ansEl, {
     delimiters: [
       { left: '\\[', right: '\\]', display: true },
@@ -2588,7 +2589,7 @@ function revealAnswer() {
 
   // Prepare solution
   const solEl = document.getElementById('solution-content');
-  solEl.innerHTML = item.solution.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+  solEl.innerHTML = bcFmt(item.solution).replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
   renderMathInElement(solEl, {
     delimiters: [
       { left: '\\[', right: '\\]', display: true },
@@ -2659,10 +2660,6 @@ function showResults() {
   // Stats
   document.getElementById('stats-row').innerHTML = `
     <div class="stat-card">
-      <div class="stat-card__value amber">${formatTime(totalTime)}</div>
-      <div class="stat-card__label">Total Time</div>
-    </div>
-    <div class="stat-card">
       <div class="stat-card__value">${total}</div>
       <div class="stat-card__label">Problems</div>
     </div>
@@ -2704,7 +2701,6 @@ function showResults() {
       <td><span style="font-family:var(--font-mono);font-size:12px;color:var(--text-3)">${sec.badge || sec.id}</span></td>
       <td class="result-problem-cell"></td>
       <td><span class="result-badge ${badgeClass}">${badgeText}</span></td>
-      <td style="font-family:var(--font-mono);font-size:13px;color:var(--text-2)">${formatTime(r.time)}</td>
       <td>
         <div class="result-actions-cell">
           <button class="result-walkthrough-toggle" data-idx="${i}" onclick="toggleResultWalkthrough(${i})">
@@ -2725,7 +2721,7 @@ function showResults() {
     tbody.appendChild(tr);
 
     const cell = tr.querySelector('.result-problem-cell');
-    cell.innerHTML = (r.item.problem || '').replace(/\n/g, '<br>');
+    cell.innerHTML = bcFmt(r.item.problem).replace(/\n/g, '<br>');
     renderMathInElement(cell, { delimiters: MATH_DELIMS, throwOnError: false });
 
     // Expandable walkthrough row
@@ -2749,10 +2745,10 @@ function showResults() {
     `;
     tbody.appendChild(wtr);
     const ansEl = wtr.querySelector('.result-walkthrough-answer');
-    ansEl.innerHTML = (r.item.answer || '').replace(/\n/g, '<br>');
+    ansEl.innerHTML = bcFmt(r.item.answer).replace(/\n/g, '<br>');
     renderMathInElement(ansEl, { delimiters: MATH_DELIMS, throwOnError: false });
     const solEl = wtr.querySelector('.result-walkthrough-solution');
-    solEl.innerHTML = (r.item.solution || '').replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+    solEl.innerHTML = bcFmt(r.item.solution).replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
     renderMathInElement(solEl, { delimiters: MATH_DELIMS, throwOnError: false });
   }
 
